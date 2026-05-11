@@ -14,7 +14,14 @@ class Etat extends Model
     protected $primaryKey = 'idEtat';
     public $timestamps = false;
 
-    protected $fillable = ['Etat', 'CodeEtat'];
+    protected $fillable = ['Etat', 'CodeEtat', 'actif'];
+
+    protected $casts = ['actif' => 'boolean'];
+
+    public function scopeActif($query)
+    {
+        return $query->where('actif', true);
+    }
 
     /**
      * RELATIONS

@@ -260,6 +260,30 @@
                                             <span>Désignations</span>
                                         </a>
                                     </li>
+                                    <li>
+                                        <a href="<?php echo e(route('parametres.etats')); ?>" wire:navigate
+                                           class="flex items-center px-4 py-2 text-sm text-gray-400 rounded-lg hover:bg-indigo-700 hover:text-white transition-colors"
+                                           :class="{ 'bg-indigo-700 text-white': isActive('/parametres/etats') }">
+                                            <svg class="w-4 h-4 mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                            <span>États</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="<?php echo e(route('parametres.natures-juridiques')); ?>" wire:navigate
+                                           class="flex items-center px-4 py-2 text-sm text-gray-400 rounded-lg hover:bg-indigo-700 hover:text-white transition-colors"
+                                           :class="{ 'bg-indigo-700 text-white': isActive('/parametres/natures-juridiques') }">
+                                            <svg class="w-4 h-4 mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3"/></svg>
+                                            <span>Natures Juridiques</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="<?php echo e(route('parametres.sources-financement')); ?>" wire:navigate
+                                           class="flex items-center px-4 py-2 text-sm text-gray-400 rounded-lg hover:bg-indigo-700 hover:text-white transition-colors"
+                                           :class="{ 'bg-indigo-700 text-white': isActive('/parametres/sources-financement') }">
+                                            <svg class="w-4 h-4 mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                            <span>Sources Financement</span>
+                                        </a>
+                                    </li>
                                 </ul>
                             </li>
 

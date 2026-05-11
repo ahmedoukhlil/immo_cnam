@@ -104,6 +104,7 @@
                     </div>
 
                     {{-- État --}}
+                    @if($this->etatActif)
                     <div>
                         <label for="idEtat" class="block text-sm font-medium text-gray-700 mb-1">
                             État <span class="text-red-500">*</span>
@@ -121,6 +122,7 @@
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
                     </div>
+                    @endif
 
                     {{-- Localisation --}}
                     <div>
@@ -194,6 +196,7 @@
                     </div>
 
                     {{-- Nature Juridique --}}
+                    @if($this->natJurActif)
                     <div>
                         <label for="idNatJur" class="block text-sm font-medium text-gray-700 mb-1">
                             Nature Juridique <span class="text-red-500">*</span>
@@ -211,8 +214,10 @@
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
                     </div>
+                    @endif
 
                     {{-- Source de Financement --}}
+                    @if($this->sfActif)
                     <div>
                         <label for="idSF" class="block text-sm font-medium text-gray-700 mb-1">
                             Source de Financement <span class="text-red-500">*</span>
@@ -230,6 +235,7 @@
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
                     </div>
+                    @endif
 
                     {{-- Année d'acquisition --}}
                     <div>

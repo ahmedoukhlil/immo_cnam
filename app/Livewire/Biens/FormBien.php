@@ -11,6 +11,7 @@ use App\Models\LocalisationImmo;
 use App\Models\Affectation;
 use App\Models\NatureJuridique;
 use App\Models\SourceFinancement;
+use App\Models\ParametreChamp;
 use App\Livewire\Traits\WithCachedOptions;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
@@ -191,7 +192,7 @@ class FormBien extends Component
      */
     public function getEtatOptionsProperty()
     {
-        return Etat::orderBy('Etat')
+        return Etat::actif()->orderBy('Etat')
             ->get()
             ->map(function ($etat) {
                 return [
@@ -342,7 +343,7 @@ class FormBien extends Component
      */
     public function getNatureJuridiqueOptionsProperty()
     {
-        return NatureJuridique::orderBy('NatJur')
+        return NatureJuridique::actif()->orderBy('NatJur')
             ->get()
             ->map(function ($natJur) {
                 return [
@@ -366,7 +367,7 @@ class FormBien extends Component
      */
     public function getSourceFinancementOptionsProperty()
     {
-        return SourceFinancement::orderBy('SourceFin')
+        return SourceFinancement::actif()->orderBy('SourceFin')
             ->get()
             ->map(function ($sourceFin) {
                 return [
@@ -386,28 +387,46 @@ class FormBien extends Component
     }
 
     /**
-     * Règles de validation
+     * Règles de validation — dépend des paramètres activés
      */
     protected function rules(): array
     {
+        $etatActif   = ParametreChamp::isActif('etat');
+        $natJurActif = ParametreChamp::isActif('nature_juridique');
+        $sfActif     = ParametreChamp::isActif('source_financement');
+
         $rules = [
             'idDesignation' => 'required|exists:designation,id',
-            'idCategorie' => 'required|exists:categorie,idCategorie',
-            'idEtat' => 'required|exists:etat,idEtat',
+            'idCategorie'   => 'required|exists:categorie,idCategorie',
+            'idEtat'        => $etatActif   ? 'required|exists:etat,idEtat'                     : 'nullable|exists:etat,idEtat',
             'idEmplacement' => 'required|exists:emplacement,idEmplacement',
-            'idNatJur' => 'required|exists:naturejurdique,idNatJur',
-            'idSF' => 'required|exists:sourcefinancement,idSF',
-            'DateAcquisition' => 'nullable|integer|min:1900|max:' . (now()->year + 1),
-            'valeur_acquisition' => 'nullable|numeric|min:0',
-            'date_mise_en_service' => 'nullable|date',
+            'idNatJur'      => $natJurActif ? 'required|exists:naturejurdique,idNatJur'          : 'nullable|exists:naturejurdique,idNatJur',
+            'idSF'          => $sfActif     ? 'required|exists:sourcefinancement,idSF'           : 'nullable|exists:sourcefinancement,idSF',
+            'DateAcquisition'     => 'nullable|integer|min:1900|max:' . (now()->year + 1),
+            'valeur_acquisition'  => 'nullable|numeric|min:0',
+            'date_mise_en_service'=> 'nullable|date',
         ];
 
-        // Ajouter la validation de quantité uniquement en mode création
         if (!$this->isEdit) {
             $rules['quantite'] = 'required|integer|min:1|max:1000';
         }
 
         return $rules;
+    }
+
+    public function getEtatActifProperty(): bool
+    {
+        return ParametreChamp::isActif('etat');
+    }
+
+    public function getNatJurActifProperty(): bool
+    {
+        return ParametreChamp::isActif('nature_juridique');
+    }
+
+    public function getSfActifProperty(): bool
+    {
+        return ParametreChamp::isActif('source_financement');
     }
 
     /**

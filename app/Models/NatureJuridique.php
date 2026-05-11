@@ -14,7 +14,14 @@ class NatureJuridique extends Model
     protected $primaryKey = 'idNatJur';
     public $timestamps = false;
 
-    protected $fillable = ['NatJur', 'CodeNatJur'];
+    protected $fillable = ['NatJur', 'CodeNatJur', 'actif'];
+
+    protected $casts = ['actif' => 'boolean'];
+
+    public function scopeActif($query)
+    {
+        return $query->where('actif', true);
+    }
 
     /**
      * RELATIONS

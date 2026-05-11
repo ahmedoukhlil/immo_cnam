@@ -14,7 +14,14 @@ class SourceFinancement extends Model
     protected $primaryKey = 'idSF';
     public $timestamps = false;
 
-    protected $fillable = ['SourceFin', 'CodeSourceFin'];
+    protected $fillable = ['SourceFin', 'CodeSourceFin', 'actif'];
+
+    protected $casts = ['actif' => 'boolean'];
+
+    public function scopeActif($query)
+    {
+        return $query->where('actif', true);
+    }
 
     /**
      * RELATIONS
