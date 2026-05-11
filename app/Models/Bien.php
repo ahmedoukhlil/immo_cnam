@@ -62,6 +62,7 @@ class Bien extends Model
         return $this->hasMany(InventaireScan::class);
     }
 
+
     /**
      * SCOPES
      */

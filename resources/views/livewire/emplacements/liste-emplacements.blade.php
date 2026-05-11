@@ -1,4 +1,4 @@
-<div>
+<div class="max-w-7xl mx-auto">
     @php
         $isAdmin = auth()->user()->isAdmin();
     @endphp
@@ -15,7 +15,7 @@
             
             <div class="flex flex-wrap items-center gap-2">
                 <a 
-                    href="{{ route('emplacements.create') }}"
+                    href="{{ route('emplacements.create') }}" wire:navigate
                     class="inline-flex items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg transition-colors">
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -152,7 +152,7 @@
                         @forelse($emplacements as $emplacement)
                             <tr class="hover:bg-gray-50 transition-colors">
                                 <td class="px-4 py-3 whitespace-nowrap">
-                                    <a href="{{ route('emplacements.show', $emplacement) }}" 
+                                    <a href="{{ route('emplacements.show', $emplacement) }}" wire:navigate 
                                        class="text-sm font-medium text-indigo-600 hover:text-indigo-900 transition-colors">
                                         {{ $emplacement->Emplacement }}
                                     </a>
@@ -175,7 +175,7 @@
                                     <div class="flex items-center justify-end gap-2">
                                         {{-- Voir QR Code (toujours visible) --}}
                                         <a 
-                                            href="{{ route('emplacements.show', $emplacement) }}"
+                                            href="{{ route('emplacements.show', $emplacement) }}" wire:navigate
                                             class="text-indigo-600 hover:text-indigo-900 transition-colors"
                                             title="Voir QR Code">
                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -185,7 +185,7 @@
 
                                         @if($isAdmin)
                                             <a 
-                                                href="{{ route('emplacements.edit', $emplacement) }}"
+                                                href="{{ route('emplacements.edit', $emplacement) }}" wire:navigate
                                                 class="text-yellow-600 hover:text-yellow-900 transition-colors"
                                                 title="Modifier">
                                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

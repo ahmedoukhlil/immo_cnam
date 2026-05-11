@@ -1,4 +1,4 @@
-<div>
+<div class="max-w-7xl mx-auto">
     @php
         $isAdmin = auth()->user()->isAdmin();
     @endphp
@@ -15,7 +15,7 @@
             
             <div class="flex flex-wrap items-center gap-2">
                 <a 
-                    href="{{ route('designations.create') }}"
+                    href="{{ route('designations.create') }}" wire:navigate
                     class="inline-flex items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg transition-colors">
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -164,7 +164,7 @@
                                     <div class="flex items-center justify-end gap-2">
                                         @if($isAdmin)
                                             <a 
-                                                href="{{ route('designations.edit', $designation) }}"
+                                                href="{{ route('designations.edit', $designation) }}" wire:navigate
                                                 class="text-yellow-600 hover:text-yellow-900 transition-colors"
                                                 title="Modifier">
                                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

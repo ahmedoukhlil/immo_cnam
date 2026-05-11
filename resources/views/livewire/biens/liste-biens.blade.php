@@ -1,4 +1,4 @@
-<div>
+<div class="max-w-7xl mx-auto">
     @php
         $isAdmin = auth()->user()->isAdmin();
     @endphp
@@ -504,7 +504,7 @@
                                 <td class="px-4 py-3 whitespace-nowrap text-right text-sm font-medium">
                                     <div class="flex items-center justify-end gap-2">
                                         <a 
-                                            href="{{ route('biens.show', $bien) }}"
+                                            href="{{ route('biens.show', $bien) }}" wire:navigate
                                             class="text-indigo-600 hover:text-indigo-900 transition-colors"
                                             title="Voir">
                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -515,7 +515,7 @@
 
                                         @if($isAdmin)
                                             <a 
-                                                href="{{ route('biens.edit', $bien) }}"
+                                                href="{{ route('biens.edit', $bien) }}" wire:navigate
                                                 class="text-yellow-600 hover:text-yellow-900 transition-colors"
                                                 title="Modifier">
                                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Users;
 
+use App\Models\Emplacement;
 use App\Models\User;
 use Livewire\Component;
 use Illuminate\Support\Facades\Hash;
@@ -13,10 +14,13 @@ class FormUser extends Component
      * Propriétés publiques
      */
     public $userId = null;
-    public $users = ''; // Nom d'utilisateur (colonne 'users' dans la table)
-    public $mdp = ''; // Mot de passe
+    public $users = '';
+    public $nom = '';
+    public $email = '';
+    public $mdp = '';
     public $mdp_confirmation = '';
     public $role = 'agent';
+    public array $emplacementIds = [];
 
     /**
      * Mode édition ou création
@@ -38,12 +42,30 @@ class FormUser extends Component
             
             // Vérifier que $user est bien une instance de User
             if ($user instanceof User) {
-                $this->isEdit = true;
-                $this->userId = $user->idUser;
-                $this->users = $user->users;
-                $this->role = $user->role;
+                $this->isEdit        = true;
+                $this->userId        = $user->idUser;
+                $this->users         = $user->users;
+                $this->nom           = $user->nom ?? '';
+                $this->email         = $user->email ?? '';
+                $this->role          = $user->role;
+                $this->emplacementIds = $user->emplacements()->pluck('emplacement.idEmplacement')->map(fn($v) => (string)$v)->toArray();
             }
         }
+    }
+
+    /**
+     * Options pour SearchableSelect : Emplacements
+     */
+    public function getEmplacementOptionsProperty()
+    {
+        return Emplacement::with(['localisation', 'affectation'])
+            ->orderBy('Emplacement')
+            ->get()
+            ->map(fn($e) => [
+                'value' => (string) $e->idEmplacement,
+                'text'  => $e->Emplacement . ($e->affectation ? ' — ' . $e->affectation->Affectation : ''),
+            ])
+            ->toArray();
     }
 
     /**
@@ -52,8 +74,10 @@ class FormUser extends Component
     public function getRoleOptionsProperty()
     {
         return [
-            ['value' => 'agent', 'text' => 'Agent'],
-            ['value' => 'admin', 'text' => 'Administrateur'],
+            ['value' => 'agent',       'text' => 'Agent'],
+            ['value' => 'admin',       'text' => 'Administrateur'],
+            ['value' => 'technicien',  'text' => 'Technicien'],
+            ['value' => 'occupant',    'text' => 'Occupant'],
         ];
     }
 
@@ -64,14 +88,19 @@ class FormUser extends Component
     {
         $rules = [
             'users' => [
-                'required',
-                'string',
-                'max:255',
-                $this->isEdit 
+                'required', 'string', 'max:60',
+                $this->isEdit
                     ? 'unique:users,users,' . $this->userId . ',idUser'
                     : 'unique:users,users',
             ],
-            'role' => 'required|in:admin,agent',
+            'nom'   => 'nullable|string|max:100',
+            'email' => [
+                'nullable', 'email', 'max:150',
+                $this->isEdit
+                    ? 'unique:users,email,' . $this->userId . ',idUser'
+                    : 'unique:users,email',
+            ],
+            'role' => 'required|in:admin,agent,technicien,occupant',
         ];
 
         // Règles pour le mot de passe
@@ -95,8 +124,10 @@ class FormUser extends Component
     {
         return [
             'users.required' => 'Le nom d\'utilisateur est obligatoire.',
-            'users.max' => 'Le nom d\'utilisateur ne peut pas dépasser 255 caractères.',
-            'users.unique' => 'Ce nom d\'utilisateur est déjà utilisé.',
+            'users.max'      => 'Le nom d\'utilisateur ne peut pas dépasser 60 caractères.',
+            'users.unique'   => 'Ce nom d\'utilisateur est déjà utilisé.',
+            'email.email'    => 'L\'adresse email n\'est pas valide.',
+            'email.unique'   => 'Cette adresse email est déjà utilisée.',
             'mdp.required' => 'Le mot de passe est obligatoire.',
             'mdp.min' => 'Le mot de passe doit contenir au moins 1 caractère.',
             'mdp.max' => 'Le mot de passe ne peut pas dépasser 255 caractères.',
@@ -133,7 +164,9 @@ class FormUser extends Component
         // Préparer les données
         $data = [
             'users' => $this->users,
-            'role' => $this->role,
+            'nom'   => $this->nom ?: null,
+            'email' => $this->email ?: null,
+            'role'  => $this->role,
         ];
 
         // Ajouter le mot de passe seulement s'il est fourni
@@ -155,6 +188,9 @@ class FormUser extends Component
             $user = User::create($data);
             session()->flash('success', "L'utilisateur {$user->users} a été créé avec succès.");
         }
+
+        // Sync emplacements (pertinent pour occupants, autorisé pour tous)
+        $user->emplacements()->sync(array_map('intval', $this->emplacementIds));
 
         // Rediriger vers la liste
         $this->redirect(route('users.index'), navigate: true);

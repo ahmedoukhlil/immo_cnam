@@ -87,26 +87,49 @@ class ListeUsers extends Component
     {
         $user = User::findOrFail($userId);
 
-        // Empêcher la suppression de l'utilisateur connecté
-        if ($user->id === auth()->id()) {
+        if ($user->idUser === auth()->user()->idUser) {
             session()->flash('error', 'Vous ne pouvez pas supprimer votre propre compte.');
             return;
         }
 
-        // Empêcher de supprimer le dernier admin actif
-        if ($user->role === 'admin' && $user->actif) {
-            $activeAdminsCount = User::where('role', 'admin')
-                ->where('actif', true)
-                ->where('id', '!=', $userId)
-                ->count();
-            
-            if ($activeAdminsCount === 0) {
-                session()->flash('error', 'Impossible de supprimer le dernier administrateur actif.');
+        if ($user->role === 'admin') {
+            $adminCount = User::where('role', 'admin')->where('idUser', '!=', $userId)->count();
+            if ($adminCount === 0) {
+                session()->flash('error', 'Impossible de supprimer le dernier administrateur.');
                 return;
             }
         }
 
-        $userName = $user->name;
+        $userName = $user->users;
+
+        // Vérifier les dépendances non-nullables qui bloqueraient la suppression
+        $stockEntrees  = \DB::table('stock_entrees')->where('created_by', $user->idUser)->count();
+        $stockSorties  = \DB::table('stock_sorties')->where('created_by', $user->idUser)->count();
+        $transferts    = \DB::table('historique_transferts')->where('transfert_par', $user->idUser)->count();
+        $ticketsCreés  = \DB::table('tickets')->where('created_by', $user->idUser)->count();
+        $interventions = \DB::table('ticket_interventions')->where('technicien_id', $user->idUser)->count();
+
+        $total = $stockEntrees + $stockSorties + $transferts + $ticketsCreés + $interventions;
+        if ($total > 0) {
+            $details = collect([
+                $stockEntrees  ? "{$stockEntrees} entrée(s) de stock"      : null,
+                $stockSorties  ? "{$stockSorties} sortie(s) de stock"      : null,
+                $transferts    ? "{$transferts} transfert(s)"               : null,
+                $ticketsCreés  ? "{$ticketsCreés} ticket(s) créé(s)"        : null,
+                $interventions ? "{$interventions} intervention(s)"         : null,
+            ])->filter()->implode(', ');
+            session()->flash('error', "Impossible de supprimer {$userName} : il est lié à {$details}. Réassignez ces données avant de supprimer.");
+            return;
+        }
+
+        // Détacher les relations pivot
+        $user->emplacements()->detach();
+        $user->permissions()->detach();
+
+        // Nullifier les FK nullable
+        \DB::table('tickets')->where('assigned_by', $user->idUser)->update(['assigned_by' => null]);
+        \DB::table('tickets')->where('assigned_to', $user->idUser)->update(['assigned_to' => null]);
+
         $user->delete();
 
         session()->flash('success', "L'utilisateur {$userName} a été supprimé avec succès.");
@@ -120,13 +143,11 @@ class ListeUsers extends Component
     {
         $query = User::query();
 
-        // Recherche
         if ($this->search) {
             $query->where(function ($q) {
-                $q->where('name', 'like', '%' . $this->search . '%')
-                  ->orWhere('email', 'like', '%' . $this->search . '%')
-                  ->orWhere('service', 'like', '%' . $this->search . '%')
-                  ->orWhere('telephone', 'like', '%' . $this->search . '%');
+                $q->where('users', 'like', '%' . $this->search . '%')
+                  ->orWhere('nom',   'like', '%' . $this->search . '%')
+                  ->orWhere('email', 'like', '%' . $this->search . '%');
             });
         }
 
@@ -157,9 +178,11 @@ class ListeUsers extends Component
     public function getStatsProperty()
     {
         return [
-            'total' => User::count(),
-            'admins' => User::where('role', 'admin')->count(),
-            'agents' => User::where('role', 'agent')->count(),
+            'total'        => User::count(),
+            'admins'       => User::where('role', 'admin')->count(),
+            'agents'       => User::where('role', 'agent')->count(),
+            'techniciens'  => User::where('role', 'technicien')->count(),
+            'occupants'    => User::where('role', 'occupant')->count(),
         ];
     }
 

@@ -1,7 +1,7 @@
 {
-  "name": "Immos GIMTEL - Scanner v2",
+  "name": "Immos CNAM - Scanner v2",
   "short_name": "Scanner v2",
-  "description": "Immos GIMTEL - Scanner par emplacement pour immobilisations",
+  "description": "Immos CNAM - Scanner par emplacement pour immobilisations",
   "start_url": "/pwa/index-v2.html",
   "display": "standalone",
   "background_color": "#ffffff",

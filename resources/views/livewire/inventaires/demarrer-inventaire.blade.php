@@ -1,11 +1,11 @@
-<div class="max-w-5xl mx-auto">
+<div class="max-w-7xl mx-auto">
     {{-- Header --}}
     <div class="mb-8">
         <nav class="flex mb-3" aria-label="Breadcrumb">
             <ol class="inline-flex items-center gap-1.5 text-sm text-gray-500">
-                <li><a href="{{ route('dashboard') }}" class="hover:text-indigo-600 transition-colors">Tableau de bord</a></li>
+                <li><a href="{{ route('dashboard') }}" wire:navigate class="hover:text-indigo-600 transition-colors">Tableau de bord</a></li>
                 <li><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg></li>
-                <li><a href="{{ route('inventaires.index') }}" class="hover:text-indigo-600 transition-colors">Inventaires</a></li>
+                <li><a href="{{ route('inventaires.index') }}" wire:navigate class="hover:text-indigo-600 transition-colors">Inventaires</a></li>
                 <li><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg></li>
                 <li class="text-gray-400">Nouveau</li>
             </ol>
@@ -439,7 +439,7 @@
                     </button>
                 @else
                     <a
-                        href="{{ route('inventaires.index') }}"
+                        href="{{ route('inventaires.index') }}" wire:navigate
                         class="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
                         Annuler
                     </a>

@@ -1,4 +1,4 @@
-<div x-data="{ activeTab: @entangle('activeTab'), sousOnglet: 'presents' }" class="space-y-6">
+<div x-data="{ activeTab: @entangle('activeTab'), sousOnglet: 'presents' }" class="max-w-7xl mx-auto space-y-6">
     @php
         $statutsInventaire = [
             'termine' => ['label' => 'Terminé', 'color' => 'bg-orange-100 text-orange-800'],

@@ -296,6 +296,22 @@ Route::middleware(['auth', 'session.timeout'])->group(function () {
 
     /*
     |----------------------------------------------------------------------
+    | Tickets de maintenance
+    |----------------------------------------------------------------------
+    |
+    | Accessible à tous les rôles : admin, agent, technicien, occupant
+    |
+    */
+    Route::middleware(['tickets'])->prefix('tickets')->name('tickets.')->group(function () {
+        Route::get('/', \App\Livewire\Tickets\ListeTickets::class)->name('index');
+        Route::get('/create', \App\Livewire\Tickets\FormTicket::class)->name('create');
+        Route::get('/gestion', \App\Livewire\Tickets\GestionTickets::class)->name('gestion');
+        Route::get('/{ticket}', \App\Livewire\Tickets\DetailTicket::class)->name('show');
+        Route::get('/{ticket}/traiter', \App\Livewire\Tickets\TraiterTicket::class)->name('traiter');
+    });
+
+    /*
+    |----------------------------------------------------------------------
     | Routes avec Middleware 'admin' (Administrateur uniquement)
     |----------------------------------------------------------------------
     |
@@ -324,6 +340,9 @@ Route::middleware(['auth', 'session.timeout'])->group(function () {
             
             // Gestion des rôles RBAC
             Route::get('/roles', \App\Livewire\Users\GestionRoles::class)->name('roles');
+
+            // Gestion des permissions d'un utilisateur
+            Route::get('/{userId}/permissions', \App\Livewire\Users\GestionPermissions::class)->name('permissions');
         });
 
         /*

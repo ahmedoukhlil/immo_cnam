@@ -1,11 +1,11 @@
 {
-  "name": "Immos GIMTEL",
-  "short_name": "Immos GIMTEL",
-  "description": "Immos GIMTEL - Gestion des immobilisations",
+  "name": "Immos CNAM",
+  "short_name": "Immos CNAM",
+  "description": "CNAM - Gestion des immobilisations",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#383f7b",
+  "theme_color": "#4f46e5",
   "orientation": "portrait-primary",
   "scope": "/",
   "icons": [
@@ -66,37 +66,21 @@
       "short_name": "Dashboard",
       "description": "Accéder au tableau de bord",
       "url": "/dashboard",
-      "icons": [
-        {
-          "src": "/images/icons/icon-96x96.png",
-          "sizes": "96x96"
-        }
-      ]
+      "icons": [{ "src": "/images/icons/icon-96x96.png", "sizes": "96x96" }]
     },
     {
       "name": "Immobilisations",
       "short_name": "Immobilisations",
       "description": "Gérer les immobilisations",
       "url": "/immobilisations",
-      "icons": [
-        {
-          "src": "/images/icons/icon-96x96.png",
-          "sizes": "96x96"
-        }
-      ]
+      "icons": [{ "src": "/images/icons/icon-96x96.png", "sizes": "96x96" }]
     },
     {
-      "name": "Localisations",
-      "short_name": "Localisations",
-      "description": "Gérer les localisations",
-      "url": "/localisations",
-      "icons": [
-        {
-          "src": "/images/icons/icon-96x96.png",
-          "sizes": "96x96"
-        }
-      ]
+      "name": "Inventaires",
+      "short_name": "Inventaires",
+      "description": "Gérer les inventaires",
+      "url": "/inventaires",
+      "icons": [{ "src": "/images/icons/icon-96x96.png", "sizes": "96x96" }]
     }
   ]
 }
-

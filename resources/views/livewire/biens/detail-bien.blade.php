@@ -1,399 +1,267 @@
-<div>
-    @php
-        $isAdmin = auth()->user()->isAdmin();
-    @endphp
+<div class="max-w-7xl mx-auto" x-data="{
+    confirmDelete: false,
+    doDelete() { this.confirmDelete = false; $wire.supprimer(); }
+}">
+    @php $isAdmin = auth()->user()->isAdmin(); @endphp
 
-    {{-- Header avec breadcrumb et actions --}}
-    <div class="mb-6">
-        <nav class="flex mb-4" aria-label="Breadcrumb">
-            <ol class="inline-flex items-center space-x-1 md:space-x-3">
-                <li class="inline-flex items-center">
-                    <a href="{{ route('dashboard') }}" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-indigo-600">
-                        <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path>
-                        </svg>
-                        Dashboard
-                    </a>
-                </li>
-                <li>
-                    <div class="flex items-center">
-                        <svg class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
-                        </svg>
-                        <a href="{{ route('biens.index') }}" class="ml-1 text-sm font-medium text-gray-700 hover:text-indigo-600 md:ml-2">Immobilisations</a>
-                    </div>
-                </li>
-                <li aria-current="page">
-                    <div class="flex items-center">
-                        <svg class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
-                        </svg>
-                        <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2">{{ $bien->NumOrdre }}</span>
-                    </div>
-                </li>
-            </ol>
-        </nav>
+    {{-- Breadcrumb --}}
+    <nav class="flex mb-4" aria-label="Breadcrumb">
+        <ol class="inline-flex items-center gap-1.5 text-sm text-gray-500">
+            <li><a href="{{ route('dashboard') }}" wire:navigate class="hover:text-indigo-600 transition-colors">Dashboard</a></li>
+            <li><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg></li>
+            <li><a href="{{ route('biens.index') }}" wire:navigate class="hover:text-indigo-600 transition-colors">Immobilisations</a></li>
+            <li><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg></li>
+            <li class="font-medium text-gray-700">{{ $bien->NumOrdre }}</li>
+        </ol>
+    </nav>
 
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div>
-                <h1 class="text-3xl font-bold text-gray-900 flex items-center gap-3">
-                    {{ $bien->code_formate ?? 'NumOrdre: ' . $bien->NumOrdre }}
-                    @if($bien->categorie)
-                        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
-                            {{ $bien->categorie->Categorie }}
-                        </span>
-                    @endif
-                </h1>
-                <p class="mt-1 text-sm text-gray-500">
-                    {{ $bien->designation ? $bien->designation->designation : 'N/A' }}
-                </p>
+    {{-- Header --}}
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6">
+        <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+            <div class="flex items-start gap-4">
+                <div class="w-12 h-12 rounded-xl bg-indigo-100 flex items-center justify-center flex-shrink-0">
+                    <svg class="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10"/></svg>
+                </div>
+                <div>
+                    <div class="flex flex-wrap items-center gap-2 mb-1">
+                        <h1 class="text-xl font-bold text-gray-900">{{ $bien->designation ? $bien->designation->designation : 'N/A' }}</h1>
+                        @if($bien->categorie)
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">{{ $bien->categorie->Categorie }}</span>
+                        @endif
+                        @if($bien->etat)
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">{{ $bien->etat->Etat }}</span>
+                        @endif
+                    </div>
+                    <div class="flex items-center gap-3 text-sm text-gray-500">
+                        <span class="font-mono font-semibold text-indigo-600 text-base">N° {{ $bien->NumOrdre }}</span>
+                        @if($bien->code_formate)
+                            <span class="text-gray-300">|</span>
+                            <code class="text-xs bg-gray-100 px-2 py-0.5 rounded font-mono">{{ $bien->code_formate }}</code>
+                            <button @click="navigator.clipboard.writeText('{{ $bien->code_formate }}').then(() => $dispatch('notify', 'Code copié !'))" class="text-gray-400 hover:text-indigo-600 transition-colors" title="Copier">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                            </button>
+                        @endif
+                    </div>
+                </div>
             </div>
-            
+
             <div class="flex flex-wrap items-center gap-2">
-                <a href="{{ route('biens.index') }}"
-                    class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
-                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                    </svg>
+                <a href="{{ route('biens.index') }}" wire:navigate class="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
                     Retour
                 </a>
 
                 @if($isAdmin && !$editing)
-                    <button wire:click="startEditing"
-                        class="inline-flex items-center px-4 py-2 border border-transparent rounded-lg text-sm font-medium text-white bg-yellow-600 hover:bg-yellow-700 transition-colors">
-                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                        </svg>
+                    <button wire:click="startEditing" class="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-amber-700 bg-amber-100 rounded-lg hover:bg-amber-200 transition-colors">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                         Modifier
                     </button>
-                    <a href="{{ route('biens.edit', $bien) }}"
-                        class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
-                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
-                        </svg>
+                    <a href="{{ route('biens.edit', $bien) }}" wire:navigate class="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/></svg>
                         Formulaire complet
                     </a>
                 @endif
 
                 @if($editing)
-                    <button wire:click="saveDetails"
-                        class="inline-flex items-center px-4 py-2 border border-transparent rounded-lg text-sm font-medium text-white bg-green-600 hover:bg-green-700 transition-colors">
-                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                        </svg>
+                    <button wire:click="saveDetails" class="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 transition-colors">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
                         Enregistrer
                     </button>
-                    <button wire:click="cancelEditing"
-                        class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+                    <button wire:click="cancelEditing" class="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
                         Annuler
                     </button>
                 @endif
 
-                <button 
-                    id="btn-print-etiquette-{{ $bien->NumOrdre }}"
-                    data-bien-id="{{ $bien->NumOrdre }}"
-                    data-code-value="{{ $bien->NumOrdre }}"
-                    class="inline-flex items-center px-4 py-2 border border-transparent rounded-lg text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 transition-colors">
-                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
-                    </svg>
+                <button data-print-etiquette="{{ $bien->NumOrdre }}" class="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
                     Imprimer
                 </button>
 
                 @if($isAdmin && !$editing)
-                    <button 
-                        wire:click="supprimer"
-                        wire:confirm="Supprimer ce bien ? Cette action est irréversible."
-                        class="inline-flex items-center px-4 py-2 border border-transparent rounded-lg text-sm font-medium text-white bg-red-600 hover:bg-red-700 transition-colors">
-                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                        </svg>
+                    <button @click="confirmDelete = true" class="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                         Supprimer
                     </button>
                 @endif
             </div>
         </div>
+
+        @if($editing)
+            <div class="mt-4 flex items-center gap-2 bg-amber-50 border border-amber-200 rounded-lg px-4 py-2.5">
+                <svg class="w-4 h-4 text-amber-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                <span class="text-sm text-amber-800 font-medium">Mode modification — modifiez les champs puis cliquez sur "Enregistrer"</span>
+            </div>
+        @endif
     </div>
 
-    {{-- Bandeau mode edition --}}
-    @if($editing)
-        <div class="mb-4 bg-yellow-50 border border-yellow-200 rounded-lg p-3 flex items-center gap-2">
-            <svg class="w-5 h-5 text-yellow-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-            </svg>
-            <span class="text-sm text-yellow-800 font-medium">Mode modification actif</span>
-            <span class="text-xs text-yellow-600">- Modifiez les champs ci-dessous puis cliquez sur "Enregistrer"</span>
-        </div>
-    @endif
+    {{-- Corps : 2 colonnes --}}
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
 
-    {{-- Section principale (2 colonnes) --}}
-    <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
-        {{-- Colonne gauche (60%) --}}
-        <div class="lg:col-span-3 space-y-6">
-            {{-- Card 1 : Informations generales --}}
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <h2 class="text-xl font-semibold text-gray-900 mb-4">Informations générales</h2>
-                
-                <div class="space-y-4">
+        {{-- Colonne gauche --}}
+        <div class="lg:col-span-2 space-y-6">
+
+            {{-- Informations générales --}}
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                <h2 class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">Informations générales</h2>
+                <div class="grid grid-cols-2 gap-x-8 gap-y-5">
                     <div>
-                        <h3 class="text-lg font-medium text-gray-900 mb-2">
-                            {{ $bien->designation ? $bien->designation->designation : 'N/A' }}
-                        </h3>
+                        <p class="text-xs text-gray-400 mb-0.5">Numéro d'ordre</p>
+                        <p class="text-2xl font-bold text-indigo-600">{{ $bien->NumOrdre }}</p>
                     </div>
-
-                    <div class="flex flex-wrap gap-2">
-                        @if($bien->categorie)
-                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
-                                {{ $bien->categorie->Categorie }}
-                            </span>
-                        @endif
-                        @if($bien->etat)
-                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
-                                {{ $bien->etat->Etat }}
-                            </span>
-                        @endif
-                        @if($bien->natureJuridique)
-                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-purple-100 text-purple-800">
-                                {{ $bien->natureJuridique->NatJur }}
-                            </span>
-                        @endif
+                    <div>
+                        <p class="text-xs text-gray-400 mb-0.5">Désignation</p>
+                        <p class="text-sm font-medium text-gray-900">{{ $bien->designation->designation ?? '—' }}</p>
                     </div>
-
-                    <div class="grid grid-cols-2 gap-4 pt-4 border-t border-gray-200">
-                        {{-- Annee d'acquisition --}}
-                        <div>
-                            <p class="text-sm text-gray-500">Année d'acquisition</p>
-                            @if($editing)
-                                <input type="number" wire:model="editDateAcquisition" min="1900" max="{{ now()->year + 1 }}" placeholder="{{ now()->year }}"
-                                    class="mt-1 block w-full px-3 py-1.5 border border-yellow-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-yellow-50">
-                                @error('editDateAcquisition') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
-                            @else
-                                <p class="text-sm font-medium text-gray-900">
-                                    @if($bien->DateAcquisition && $bien->DateAcquisition > 1970)
-                                        {{ $bien->DateAcquisition }}
-                                        @if($this->age && $this->age > 0)
-                                            <span class="text-gray-500">({{ $this->age }} an{{ $this->age > 1 ? 's' : '' }})</span>
-                                        @endif
-                                    @else
-                                        <span class="text-gray-400">Non renseignée</span>
+                    <div>
+                        <p class="text-xs text-gray-400 mb-0.5">Année d'acquisition</p>
+                        @if($editing)
+                            <input type="number" wire:model="editDateAcquisition" min="1900" max="{{ now()->year + 1 }}"
+                                class="mt-0.5 block w-full px-3 py-1.5 border border-amber-300 rounded-lg text-sm bg-amber-50 focus:ring-indigo-500 focus:border-indigo-500">
+                            @error('editDateAcquisition') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+                        @else
+                            <p class="text-sm font-medium text-gray-900">
+                                @if($bien->DateAcquisition && $bien->DateAcquisition > 1970)
+                                    {{ $bien->DateAcquisition }}
+                                    @if($this->age && $this->age > 0)
+                                        <span class="text-gray-400 text-xs">({{ $this->age }} an{{ $this->age > 1 ? 's' : '' }})</span>
                                     @endif
-                                </p>
-                            @endif
-                        </div>
-                        <div>
-                            <p class="text-sm text-gray-500">Numéro d'ordre</p>
-                            <p class="text-2xl font-bold text-indigo-600">{{ $bien->NumOrdre }}</p>
-                        </div>
+                                @else <span class="text-gray-300">—</span> @endif
+                            </p>
+                        @endif
                     </div>
-
-                    {{-- Valeur et date de mise en service --}}
-                    <div class="grid grid-cols-2 gap-4 pt-4 border-t border-gray-200">
-                        <div>
-                            <p class="text-sm text-gray-500">Valeur d'acquisition (MRU)</p>
-                            @if($editing)
-                                <input type="number" wire:model="editValeurAcquisition" min="0" step="0.01" placeholder="Ex: 150000"
-                                    class="mt-1 block w-full px-3 py-1.5 border border-yellow-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-yellow-50">
-                                @error('editValeurAcquisition') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
-                            @else
-                                <p class="text-sm font-medium text-gray-900">
-                                    @if($bien->valeur_acquisition)
-                                        {{ number_format($bien->valeur_acquisition, 2, ',', ' ') }} MRU
-                                    @else
-                                        <span class="text-gray-400">Non renseignée</span>
-                                    @endif
-                                </p>
-                            @endif
-                        </div>
-                        <div>
-                            <p class="text-sm text-gray-500">Date de mise en service</p>
-                            @if($editing)
-                                <input type="date" wire:model="editDateMiseEnService"
-                                    class="mt-1 block w-full px-3 py-1.5 border border-yellow-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-yellow-50">
-                                @error('editDateMiseEnService') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
-                            @else
-                                <p class="text-sm font-medium text-gray-900">
-                                    @if($bien->date_mise_en_service)
-                                        {{ $bien->date_mise_en_service->format('d/m/Y') }}
-                                    @else
-                                        <span class="text-gray-400">Non renseignée</span>
-                                    @endif
-                                </p>
-                            @endif
-                        </div>
+                    <div>
+                        <p class="text-xs text-gray-400 mb-0.5">Date de mise en service</p>
+                        @if($editing)
+                            <input type="date" wire:model="editDateMiseEnService"
+                                class="mt-0.5 block w-full px-3 py-1.5 border border-amber-300 rounded-lg text-sm bg-amber-50 focus:ring-indigo-500 focus:border-indigo-500">
+                            @error('editDateMiseEnService') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+                        @else
+                            <p class="text-sm font-medium text-gray-900">{{ $bien->date_mise_en_service ? $bien->date_mise_en_service->format('d/m/Y') : '—' }}</p>
+                        @endif
                     </div>
-
-                    <div class="pt-4 border-t border-gray-200">
-                        <p class="text-sm text-gray-500 mb-2">Code d'immobilisation</p>
-                        <div class="flex items-center gap-2">
-                            <code class="px-3 py-2 bg-gray-100 rounded-lg text-sm font-mono">{{ $bien->code_formate ?? 'N/A' }}</code>
-                            @if($bien->code_formate)
-                                <button 
-                                    onclick="navigator.clipboard.writeText('{{ $bien->code_formate }}'); alert('Code copié !');"
-                                    class="p-2 text-gray-500 hover:text-gray-700 transition-colors"
-                                    title="Copier">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                                    </svg>
-                                </button>
-                            @endif
-                        </div>
+                    <div>
+                        <p class="text-xs text-gray-400 mb-0.5">Valeur d'acquisition</p>
+                        @if($editing)
+                            <input type="number" wire:model="editValeurAcquisition" min="0" step="0.01"
+                                class="mt-0.5 block w-full px-3 py-1.5 border border-amber-300 rounded-lg text-sm bg-amber-50 focus:ring-indigo-500 focus:border-indigo-500">
+                            @error('editValeurAcquisition') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+                        @else
+                            <p class="text-sm font-medium text-gray-900">
+                                @if($bien->valeur_acquisition)
+                                    <span class="font-semibold">{{ number_format($bien->valeur_acquisition, 2, ',', ' ') }}</span>
+                                    <span class="text-xs text-gray-400">MRU</span>
+                                @else <span class="text-gray-300">—</span> @endif
+                            </p>
+                        @endif
                     </div>
+                    <div>
+                        <p class="text-xs text-gray-400 mb-0.5">Nature juridique</p>
+                        <p class="text-sm font-medium text-gray-900">{{ $bien->natureJuridique->NatJur ?? '—' }}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-400 mb-0.5">Source de financement</p>
+                        <p class="text-sm font-medium text-gray-900">{{ $bien->sourceFinancement->SourceFin ?? '—' }}</p>
+                    </div>
+                    @if($bien->categorie && $bien->categorie->duree_amortissement)
+                    <div>
+                        <p class="text-xs text-gray-400 mb-0.5">Type CGI / Amortissement</p>
+                        <p class="text-sm font-medium text-gray-900">{{ $bien->categorie->type_cgi ?? '—' }} — {{ $bien->categorie->duree_amortissement }} ans ({{ $bien->categorie->taux_amortissement }}%)</p>
+                    </div>
+                    @endif
                 </div>
             </div>
 
-            {{-- Card 2 : Emplacement et Localisation --}}
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <h2 class="text-xl font-semibold text-gray-900 mb-4">Emplacement</h2>
-                
+            {{-- Emplacement --}}
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                <h2 class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">Localisation & Emplacement</h2>
                 @if($bien->emplacement)
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         @if($bien->emplacement->localisation)
-                            <div>
-                                <p class="text-sm text-gray-500 mb-1">Localisation</p>
-                                <p class="text-sm font-medium text-gray-900">{{ $bien->emplacement->localisation->Localisation }}</p>
-                                @if($bien->emplacement->localisation->CodeLocalisation)
-                                    <p class="text-xs text-gray-500 mt-1">Code: {{ $bien->emplacement->localisation->CodeLocalisation }}</p>
-                                @endif
-                            </div>
+                        <div class="bg-gray-50 rounded-xl p-4">
+                            <p class="text-xs text-gray-400 mb-1">Localisation</p>
+                            <p class="text-sm font-semibold text-gray-800">{{ $bien->emplacement->localisation->Localisation }}</p>
+                            @if($bien->emplacement->localisation->CodeLocalisation)
+                                <p class="text-xs text-gray-400 mt-1 font-mono">{{ $bien->emplacement->localisation->CodeLocalisation }}</p>
+                            @endif
+                        </div>
                         @endif
                         @if($bien->emplacement->affectation)
-                            <div>
-                                <p class="text-sm text-gray-500 mb-1">Affectation</p>
-                                <p class="text-sm font-medium text-gray-900">{{ $bien->emplacement->affectation->Affectation }}</p>
-                                @if($bien->emplacement->affectation->CodeAffectation)
-                                    <p class="text-xs text-gray-500 mt-1">Code: {{ $bien->emplacement->affectation->CodeAffectation }}</p>
-                                @endif
-                            </div>
+                        <div class="bg-gray-50 rounded-xl p-4">
+                            <p class="text-xs text-gray-400 mb-1">Affectation</p>
+                            <p class="text-sm font-semibold text-gray-800">{{ $bien->emplacement->affectation->Affectation }}</p>
+                            @if($bien->emplacement->affectation->CodeAffectation)
+                                <p class="text-xs text-gray-400 mt-1 font-mono">{{ $bien->emplacement->affectation->CodeAffectation }}</p>
+                            @endif
+                        </div>
                         @endif
-                        <div>
-                            <p class="text-sm text-gray-500 mb-1">Emplacement</p>
-                            <p class="text-sm font-medium text-gray-900">{{ $bien->emplacement->Emplacement }}</p>
+                        <div class="bg-indigo-50 rounded-xl p-4">
+                            <p class="text-xs text-indigo-400 mb-1">Emplacement</p>
+                            <p class="text-sm font-semibold text-indigo-800">{{ $bien->emplacement->Emplacement }}</p>
                             @if($bien->emplacement->CodeEmplacement)
-                                <p class="text-xs text-gray-500 mt-1">Code: {{ $bien->emplacement->CodeEmplacement }}</p>
+                                <p class="text-xs text-indigo-400 mt-1 font-mono">{{ $bien->emplacement->CodeEmplacement }}</p>
                             @endif
                         </div>
                     </div>
                 @else
-                    <p class="text-sm text-gray-500 italic">Aucun emplacement assigné</p>
+                    <p class="text-sm text-gray-400 italic">Aucun emplacement assigné</p>
                 @endif
             </div>
 
-            {{-- Card 3 : Observations --}}
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <h2 class="text-xl font-semibold text-gray-900 mb-4">Observations</h2>
+            {{-- Observations --}}
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                <h2 class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">Observations</h2>
                 @if($editing)
                     <textarea wire:model="editObservations" rows="4" placeholder="Saisir des observations..."
-                        class="block w-full px-3 py-2 border border-yellow-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-yellow-50"></textarea>
+                        class="block w-full px-3 py-2 border border-amber-300 rounded-lg text-sm bg-amber-50 focus:ring-indigo-500 focus:border-indigo-500"></textarea>
                     @error('editObservations') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
                 @elseif($bien->Observations)
-                    <p class="text-sm text-gray-700 whitespace-pre-wrap">{{ $bien->Observations }}</p>
+                    <p class="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">{{ $bien->Observations }}</p>
                 @else
-                    <p class="text-sm text-gray-500 italic">Aucune observation</p>
+                    <p class="text-sm text-gray-400 italic">Aucune observation</p>
                 @endif
             </div>
         </div>
 
-        {{-- Colonne droite (40%) --}}
-        <div class="lg:col-span-2 space-y-6">
-            {{-- Card 1 : Code-barres --}}
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <h2 class="text-xl font-semibold text-gray-900 mb-4">Code-barres Code 128</h2>
-                
-                <div class="text-center mb-4">
-                    <div id="barcode-container-{{ $bien->NumOrdre }}"
-                        class="w-full mx-auto cursor-pointer hover:opacity-80 transition-opacity bg-white p-2 rounded border border-gray-200"
-                        onclick="document.getElementById('barcode-modal').classList.remove('hidden')"
-                        title="Cliquez pour agrandir">
-                        <svg id="barcode-svg-{{ $bien->NumOrdre }}" width="100%" height="56" style="max-width: 100%; display: block;"></svg>
-                    </div>
-                    <p class="text-xs text-gray-500 mt-1.5">Code 128 - 89mm x 36mm</p>
-                    <div class="mt-2 space-y-1">
-                        <p class="text-xs text-gray-700 font-mono font-semibold">{{ $bien->NumOrdre }}</p>
-                        @if($bien->code_formate)
-                            <p class="text-xs text-gray-600 font-mono">{{ $bien->code_formate }}</p>
-                        @endif
-                        @if($bien->designation)
-                            <p class="text-xs text-gray-700 font-medium">{{ $bien->designation->designation }}</p>
-                        @endif
-                    </div>
+        {{-- Colonne droite --}}
+        <div class="space-y-6">
+
+            {{-- Code-barres --}}
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                <h2 class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">Code-barres</h2>
+                <div class="cursor-pointer hover:opacity-80 transition-opacity bg-white border border-gray-200 rounded-xl p-3 mb-3"
+                    @click="$dispatch('open-barcode-modal')" title="Cliquez pour agrandir">
+                    <svg id="barcode-svg-{{ $bien->NumOrdre }}" width="100%" height="56" style="display:block;"></svg>
                 </div>
-                
-                <div class="space-y-2">
-                    <button 
-                        id="btn-print-label-{{ $bien->NumOrdre }}"
-                        data-bien-id="{{ $bien->NumOrdre }}"
-                        data-code-value="{{ $bien->NumOrdre }}"
-                        class="w-full px-4 py-2 border border-transparent rounded-lg text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 transition-colors">
-                        Imprimer étiquette
-                    </button>
-                </div>
+                <p class="text-center text-[11px] text-gray-400 mb-3">Code 128 · 89mm × 36mm · <span class="font-mono">{{ $bien->NumOrdre }}</span></p>
+                <button data-print-etiquette="{{ $bien->NumOrdre }}"
+                    class="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-white bg-indigo-600 rounded-xl hover:bg-indigo-700 transition-colors">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+                    Imprimer l'étiquette
+                </button>
             </div>
 
-            {{-- Card 2 : Informations complementaires --}}
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <h2 class="text-xl font-semibold text-gray-900 mb-4">Informations complémentaires</h2>
-                
-                <div class="space-y-3">
-                    @if($bien->natureJuridique)
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <p class="text-xs text-gray-500">Nature Juridique</p>
-                                <p class="text-sm font-medium text-gray-900">{{ $bien->natureJuridique->NatJur }}</p>
-                            </div>
-                            @if($bien->natureJuridique->CodeNatJur)
-                                <span class="text-xs text-gray-400 font-mono">{{ $bien->natureJuridique->CodeNatJur }}</span>
-                            @endif
-                        </div>
-                    @endif
-                    @if($bien->sourceFinancement)
-                        <div class="flex justify-between items-start pt-3 border-t border-gray-100">
-                            <div>
-                                <p class="text-xs text-gray-500">Source de Financement</p>
-                                <p class="text-sm font-medium text-gray-900">{{ $bien->sourceFinancement->SourceFin }}</p>
-                            </div>
-                            @if($bien->sourceFinancement->CodeSourceFin)
-                                <span class="text-xs text-gray-400 font-mono">{{ $bien->sourceFinancement->CodeSourceFin }}</span>
-                            @endif
-                        </div>
-                    @endif
-                    @if($bien->categorie && $bien->categorie->duree_amortissement)
-                        <div class="flex justify-between items-start pt-3 border-t border-gray-100">
-                            <div>
-                                <p class="text-xs text-gray-500">Type CGI</p>
-                                <p class="text-sm font-medium text-gray-900">{{ $bien->categorie->type_cgi ?? '-' }}</p>
-                            </div>
-                            <span class="text-xs text-gray-400">{{ $bien->categorie->duree_amortissement }} ans / {{ $bien->categorie->taux_amortissement }}%</span>
-                        </div>
-                    @endif
-                    @if($this->age)
-                        <div class="pt-3 border-t border-gray-100">
-                            <p class="text-xs text-gray-500">Âge</p>
-                            <p class="text-sm font-medium text-gray-900">{{ $this->age }} an{{ $this->age > 1 ? 's' : '' }}</p>
-                        </div>
-                    @endif
-                </div>
-            </div>
-
-            {{-- Card 3 : Actions rapides --}}
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <h2 class="text-xl font-semibold text-gray-900 mb-4">Actions rapides</h2>
-                
+            {{-- Liens rapides --}}
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                <h2 class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">Voir aussi</h2>
                 <div class="space-y-2">
                     @if($bien->emplacement)
-                        <a href="{{ route('biens.index', ['filterEmplacement' => $bien->idEmplacement]) }}"
-                            class="block w-full text-left px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+                        <a href="{{ route('biens.index', ['filterEmplacement' => $bien->idEmplacement]) }}" wire:navigate
+                            class="flex items-center gap-2 w-full px-3 py-2.5 text-sm font-medium text-gray-700 bg-gray-50 rounded-xl hover:bg-indigo-50 hover:text-indigo-700 transition-colors">
+                            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5"/></svg>
                             Biens de cet emplacement
                         </a>
                     @endif
                     @if($bien->categorie)
-                        <a href="{{ route('biens.index', ['filterCategorie' => $bien->idCategorie]) }}"
-                            class="block w-full text-left px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+                        <a href="{{ route('biens.index', ['filterCategorie' => $bien->idCategorie]) }}" wire:navigate
+                            class="flex items-center gap-2 w-full px-3 py-2.5 text-sm font-medium text-gray-700 bg-gray-50 rounded-xl hover:bg-indigo-50 hover:text-indigo-700 transition-colors">
+                            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>
                             Biens de cette catégorie
                         </a>
                     @endif
                     @if($bien->designation)
-                        <a href="{{ route('biens.index', ['filterDesignation' => $bien->idDesignation]) }}"
-                            class="block w-full text-left px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+                        <a href="{{ route('biens.index', ['filterDesignation' => $bien->idDesignation]) }}" wire:navigate
+                            class="flex items-center gap-2 w-full px-3 py-2.5 text-sm font-medium text-gray-700 bg-gray-50 rounded-xl hover:bg-indigo-50 hover:text-indigo-700 transition-colors">
+                            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h7"/></svg>
                             Biens de cette désignation
                         </a>
                     @endif
@@ -402,86 +270,82 @@
         </div>
     </div>
 
-    {{-- Section Amortissement (pleine largeur) --}}
-    <div class="mt-6 bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <h2 class="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
-            <svg class="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-            </svg>
+    {{-- Amortissement --}}
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6">
+        <h2 class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-5 flex items-center gap-2">
+            <svg class="w-4 h-4 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
             Amortissement
         </h2>
 
         @if($this->resumeAmortissement)
             @php $resume = $this->resumeAmortissement; @endphp
 
-            {{-- Resume --}}
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                <div class="bg-blue-50 rounded-lg p-4">
-                    <p class="text-xs text-blue-600 font-medium">Valeur d'acquisition</p>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-5">
+                <div class="bg-blue-50 rounded-xl p-4">
+                    <p class="text-xs text-blue-500 font-medium mb-1">Valeur d'acquisition</p>
                     <p class="text-lg font-bold text-blue-900">{{ number_format($resume['valeur_acquisition'], 2, ',', ' ') }}</p>
-                    <p class="text-xs text-blue-500">MRU</p>
+                    <p class="text-xs text-blue-400">MRU</p>
                 </div>
-                <div class="bg-amber-50 rounded-lg p-4">
-                    <p class="text-xs text-amber-600 font-medium">Dotation annuelle</p>
+                <div class="bg-amber-50 rounded-xl p-4">
+                    <p class="text-xs text-amber-500 font-medium mb-1">Dotation annuelle</p>
                     <p class="text-lg font-bold text-amber-900">{{ number_format($resume['dotation_annuelle'], 2, ',', ' ') }}</p>
-                    <p class="text-xs text-amber-500">MRU/an ({{ $resume['taux'] }}%)</p>
+                    <p class="text-xs text-amber-400">MRU/an · {{ $resume['taux'] }}%</p>
                 </div>
-                <div class="bg-green-50 rounded-lg p-4">
-                    <p class="text-xs text-green-600 font-medium">VNC actuelle</p>
+                <div class="bg-green-50 rounded-xl p-4">
+                    <p class="text-xs text-green-500 font-medium mb-1">VNC actuelle</p>
                     <p class="text-lg font-bold text-green-900">{{ number_format($resume['vnc'], 2, ',', ' ') }}</p>
-                    <p class="text-xs text-green-500">MRU</p>
+                    <p class="text-xs text-green-400">MRU</p>
                 </div>
-                <div class="{{ $resume['est_totalement_amorti'] ? 'bg-red-50' : 'bg-purple-50' }} rounded-lg p-4">
-                    <p class="text-xs {{ $resume['est_totalement_amorti'] ? 'text-red-600' : 'text-purple-600' }} font-medium">Statut</p>
+                <div class="{{ $resume['est_totalement_amorti'] ? 'bg-red-50' : 'bg-purple-50' }} rounded-xl p-4">
+                    <p class="text-xs {{ $resume['est_totalement_amorti'] ? 'text-red-500' : 'text-purple-500' }} font-medium mb-1">Statut</p>
                     @if($resume['est_totalement_amorti'])
-                        <p class="text-lg font-bold text-red-900">Totalement amorti</p>
+                        <p class="text-sm font-bold text-red-800">Totalement amorti</p>
                     @else
                         <p class="text-lg font-bold text-purple-900">{{ $resume['annees_restantes'] }} an{{ $resume['annees_restantes'] > 1 ? 's' : '' }}</p>
-                        <p class="text-xs text-purple-500">restant{{ $resume['annees_restantes'] > 1 ? 's' : '' }}</p>
+                        <p class="text-xs text-purple-400">restant{{ $resume['annees_restantes'] > 1 ? 's' : '' }}</p>
                     @endif
                 </div>
             </div>
 
-            {{-- Barre de progression --}}
-            <div class="mb-6">
-                <div class="flex justify-between text-sm text-gray-600 mb-1">
-                    <span>Progression : {{ $resume['pourcentage_amorti'] }}%</span>
-                    <span>{{ $resume['date_debut'] }} - {{ $resume['date_fin'] }}</span>
+            <div class="mb-5">
+                <div class="flex justify-between text-xs text-gray-500 mb-1.5">
+                    <span>{{ $resume['type_cgi'] }} · {{ $resume['duree'] }} ans · Cumulé : <strong>{{ number_format($resume['amortissement_cumule'], 2, ',', ' ') }} MRU</strong></span>
+                    <span>{{ $resume['date_debut'] }} → {{ $resume['date_fin'] }} · <strong>{{ $resume['pourcentage_amorti'] }}%</strong></span>
                 </div>
-                <div class="w-full bg-gray-200 rounded-full h-3">
-                    <div class="h-3 rounded-full transition-all duration-500 {{ $resume['est_totalement_amorti'] ? 'bg-red-500' : 'bg-indigo-600' }}" style="width: {{ min($resume['pourcentage_amorti'], 100) }}%"></div>
-                </div>
-                <div class="flex justify-between text-xs text-gray-500 mt-1">
-                    <span>{{ $resume['type_cgi'] }} - {{ $resume['duree'] }} ans</span>
-                    <span>Cumul : {{ number_format($resume['amortissement_cumule'], 2, ',', ' ') }} MRU</span>
+                <div class="w-full bg-gray-100 rounded-full h-2.5">
+                    <div class="h-2.5 rounded-full transition-all duration-500 {{ $resume['est_totalement_amorti'] ? 'bg-red-500' : 'bg-indigo-500' }}" style="width: {{ min($resume['pourcentage_amorti'], 100) }}%"></div>
                 </div>
             </div>
 
-            {{-- Tableau d'amortissement --}}
             @if($this->tableauAmortissement)
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200 text-sm">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-4 py-3 text-left font-medium text-gray-500">Exercice</th>
-                                <th class="px-4 py-3 text-right font-medium text-gray-500">Valeur amortissable</th>
-                                <th class="px-4 py-3 text-right font-medium text-gray-500">Taux</th>
-                                <th class="px-4 py-3 text-right font-medium text-gray-500">Dotation</th>
-                                <th class="px-4 py-3 text-right font-medium text-gray-500">Amort. cumulé</th>
-                                <th class="px-4 py-3 text-right font-medium text-gray-500">VNC</th>
-                                <th class="px-4 py-3 text-center font-medium text-gray-500">Note</th>
+                <div class="overflow-x-auto rounded-xl border border-gray-100">
+                    <table class="min-w-full text-sm">
+                        <thead>
+                            <tr class="bg-gray-50 text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                                <th class="px-4 py-3 text-left">Exercice</th>
+                                <th class="px-4 py-3 text-right">Valeur amortissable</th>
+                                <th class="px-4 py-3 text-right">Taux</th>
+                                <th class="px-4 py-3 text-right">Dotation</th>
+                                <th class="px-4 py-3 text-right">Amort. cumulé</th>
+                                <th class="px-4 py-3 text-right">VNC</th>
+                                <th class="px-4 py-3 text-center">Note</th>
                             </tr>
                         </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
+                        <tbody class="bg-white divide-y divide-gray-50">
                             @foreach($this->tableauAmortissement['lignes'] as $ligne)
-                                <tr class="{{ $ligne['exercice'] == now()->year ? 'bg-indigo-50 font-semibold' : '' }}">
-                                    <td class="px-4 py-2 text-gray-900">{{ $ligne['exercice'] }}</td>
-                                    <td class="px-4 py-2 text-right text-gray-700">{{ number_format($ligne['valeur_amortissable'], 2, ',', ' ') }}</td>
-                                    <td class="px-4 py-2 text-right text-gray-700">{{ $ligne['taux'] }}%</td>
-                                    <td class="px-4 py-2 text-right text-gray-900 font-medium">{{ number_format($ligne['dotation'], 2, ',', ' ') }}</td>
-                                    <td class="px-4 py-2 text-right text-gray-700">{{ number_format($ligne['cumul'], 2, ',', ' ') }}</td>
-                                    <td class="px-4 py-2 text-right text-gray-900 font-medium">{{ number_format($ligne['vnc'], 2, ',', ' ') }}</td>
-                                    <td class="px-4 py-2 text-center text-xs text-gray-500">{{ $ligne['prorata'] ?? '' }}</td>
+                                <tr class="hover:bg-gray-50 transition-colors {{ $ligne['exercice'] == now()->year ? 'bg-indigo-50 font-semibold' : '' }}">
+                                    <td class="px-4 py-2.5 text-gray-900">
+                                        {{ $ligne['exercice'] }}
+                                        @if($ligne['exercice'] == now()->year)
+                                            <span class="ml-1 text-[10px] bg-indigo-200 text-indigo-800 px-1.5 py-0.5 rounded-full">en cours</span>
+                                        @endif
+                                    </td>
+                                    <td class="px-4 py-2.5 text-right text-gray-600">{{ number_format($ligne['valeur_amortissable'], 2, ',', ' ') }}</td>
+                                    <td class="px-4 py-2.5 text-right text-gray-600">{{ $ligne['taux'] }}%</td>
+                                    <td class="px-4 py-2.5 text-right font-medium text-gray-900">{{ number_format($ligne['dotation'], 2, ',', ' ') }}</td>
+                                    <td class="px-4 py-2.5 text-right text-gray-600">{{ number_format($ligne['cumul'], 2, ',', ' ') }}</td>
+                                    <td class="px-4 py-2.5 text-right font-medium text-gray-900">{{ number_format($ligne['vnc'], 2, ',', ' ') }}</td>
+                                    <td class="px-4 py-2.5 text-center text-xs text-gray-400">{{ $ligne['prorata'] ?? '' }}</td>
                                 </tr>
                             @endforeach
                         </tbody>
@@ -489,11 +353,11 @@
                 </div>
             @endif
         @else
-            <div class="bg-gray-50 rounded-lg p-6 text-center">
-                <svg class="w-12 h-12 text-gray-300 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <p class="text-sm text-gray-500 font-medium">Amortissement non disponible</p>
+            <div class="text-center py-10">
+                <div class="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <svg class="w-6 h-6 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                </div>
+                <p class="text-sm font-medium text-gray-500">Amortissement non disponible</p>
                 <p class="text-xs text-gray-400 mt-1">{{ $this->raisonNonAmortissable }}</p>
                 @if($isAdmin && !$editing && (!$bien->valeur_acquisition || !$bien->date_mise_en_service))
                     <button wire:click="startEditing" class="mt-3 inline-flex items-center px-3 py-1.5 text-xs font-medium text-indigo-700 bg-indigo-100 rounded-lg hover:bg-indigo-200 transition-colors">
@@ -505,53 +369,70 @@
     </div>
 
     {{-- Modal Code-barres agrandi --}}
-    <div id="barcode-modal" class="hidden fixed inset-0 z-50 overflow-y-auto" onclick="this.classList.add('hidden')">
-        <div class="flex items-center justify-center min-h-screen px-4">
-            <div class="fixed inset-0 bg-black bg-opacity-50" onclick="document.getElementById('barcode-modal').classList.add('hidden')"></div>
-            <div class="relative bg-white rounded-lg p-8 max-w-2xl" onclick="event.stopPropagation()">
-                <button 
-                    onclick="document.getElementById('barcode-modal').classList.add('hidden')"
-                    class="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
-                <div class="w-full flex items-center justify-center bg-white p-6 rounded-lg border border-gray-200">
-                    <div id="barcode-modal-placeholder-{{ $bien->NumOrdre }}" style="min-height: 150px; display: flex; align-items: center; justify-content: center; width: 100%; max-width: 700px;">
-                        <svg id="barcode-svg-modal-{{ $bien->NumOrdre }}" width="100%" height="180" style="max-width: 100%; display: block;"></svg>
-                    </div>
-                </div>
-                <div class="text-center mt-4 space-y-1">
-                    @if($bien->code_formate)
-                        <p class="text-xs font-mono text-gray-600">{{ $bien->code_formate }}</p>
-                    @endif
-                    @if($bien->designation)
-                        <p class="text-xs font-medium text-gray-700">{{ $bien->designation->designation }}</p>
-                    @endif
-                </div>
+    <div x-data="{ open: false }" x-on:open-barcode-modal.window="open = true"
+        x-show="open" x-transition:enter="ease-out duration-200" x-transition:enter-start="opacity-0"
+        x-transition:enter-end="opacity-100" x-transition:leave="ease-in duration-150"
+        x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+        @keydown.escape.window="open = false"
+        class="fixed inset-0 z-50 flex items-center justify-center p-4" style="display:none;" x-cloak>
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="open = false"></div>
+        <div class="relative bg-white rounded-2xl p-8 max-w-2xl w-full shadow-2xl" @click.stop
+            x-transition:enter="ease-out duration-200" x-transition:enter-start="opacity-0 scale-95"
+            x-transition:enter-end="opacity-100 scale-100">
+            <button @click="open = false" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+            <div class="flex items-center justify-center bg-white p-6 rounded-xl border border-gray-100">
+                <svg id="barcode-svg-modal-{{ $bien->NumOrdre }}" width="100%" height="180" style="display:block; max-width:100%;"></svg>
+            </div>
+            <div class="text-center mt-4 space-y-1">
+                <p class="text-sm font-mono font-bold text-gray-800">{{ $bien->NumOrdre }}</p>
+                @if($bien->code_formate) <p class="text-xs font-mono text-gray-500">{{ $bien->code_formate }}</p> @endif
+                @if($bien->designation) <p class="text-xs text-gray-600">{{ $bien->designation->designation }}</p> @endif
             </div>
         </div>
     </div>
 
-    {{-- Messages flash --}}
+    {{-- Modal confirmation suppression --}}
+    <div x-show="confirmDelete"
+        x-transition:enter="ease-out duration-200" x-transition:enter-start="opacity-0"
+        x-transition:enter-end="opacity-100" x-transition:leave="ease-in duration-150"
+        x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+        class="fixed inset-0 z-50 flex items-center justify-center p-4"
+        style="display:none;" @keydown.escape.window="confirmDelete = false">
+        <div class="absolute inset-0 bg-gray-900/50 backdrop-blur-sm" @click="confirmDelete = false"></div>
+        <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden"
+            x-transition:enter="ease-out duration-200" x-transition:enter-start="opacity-0 scale-95 translate-y-2"
+            x-transition:enter-end="opacity-100 scale-100 translate-y-0">
+            <div class="px-6 pt-6 pb-4 flex items-start gap-4">
+                <div class="flex-shrink-0 w-12 h-12 rounded-full bg-red-100 flex items-center justify-center">
+                    <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900">Supprimer ce bien</h3>
+                    <p class="mt-1 text-sm text-gray-500">Le bien <strong>{{ $bien->NumOrdre }}</strong> sera définitivement supprimé. Cette action est irréversible.</p>
+                </div>
+            </div>
+            <div class="h-px bg-gray-100 mx-6"></div>
+            <div class="px-6 py-4 flex justify-end gap-3">
+                <button @click="confirmDelete = false" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">Annuler</button>
+                <button @click="doDelete()" class="px-5 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors shadow-sm">Supprimer</button>
+            </div>
+        </div>
+    </div>
+
+    {{-- Flash --}}
     @if(session()->has('success'))
-        <div 
-            x-data="{ show: true }"
-            x-show="show"
-            x-init="setTimeout(() => show = false, 3000)"
-            x-transition
-            class="fixed bottom-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50">
+        <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 3000)" x-transition
+            class="fixed bottom-5 right-5 z-50 flex items-center gap-3 bg-gray-900 text-white px-4 py-3 rounded-xl shadow-lg text-sm">
+            <svg class="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
             {{ session('success') }}
         </div>
     @endif
-
     @if(session()->has('error'))
-        <div 
-            x-data="{ show: true }"
-            x-show="show"
-            x-init="setTimeout(() => show = false, 5000)"
-            x-transition
-            class="fixed bottom-4 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-50">
+        <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 5000)" x-transition
+            class="fixed bottom-5 right-5 z-50 flex items-center gap-3 bg-red-600 text-white px-4 py-3 rounded-xl shadow-lg text-sm">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
             {{ session('error') }}
         </div>
     @endif
@@ -559,135 +440,63 @@
     @if(isset($bien) && $bien->NumOrdre)
     <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    
     <script>
-        const BIEN_ID = {{ $bien->NumOrdre }};
-        const CODE_VALUE = {{ $bien->NumOrdre }};
-        window.CODE_FORMATE = @json($bien->code_formate ?? '');
-        window.DESIGNATION = @json($bien->designation->designation ?? '');
+        (function() {
+            const BIEN_ID      = {{ $bien->NumOrdre }};
+            const CODE_VALUE   = {{ $bien->NumOrdre }};
+            const CODE_FORMATE = @json($bien->code_formate ?? '');
+            const DESIGNATION  = @json($bien->designation->designation ?? '');
 
-        function generateBarcode(bienId, codeValue) {
-            if (!codeValue || String(codeValue).trim() === '' || typeof JsBarcode === 'undefined') return false;
-            
-            const code = String(codeValue).trim();
-            
-            const svgMain = document.getElementById('barcode-svg-' + bienId);
-            if (svgMain) {
+            function generateBarcode() {
+                if (!CODE_VALUE || typeof JsBarcode === 'undefined') return;
+                const code = String(CODE_VALUE).trim();
+                const svgMain = document.getElementById('barcode-svg-' + BIEN_ID);
+                if (svgMain) { try { JsBarcode(svgMain, code, { format:"CODE128", width:2.2, height:52, displayValue:false, background:"#ffffff", lineColor:"#000000", margin:6 }); } catch(e) {} }
+                const svgModal = document.getElementById('barcode-svg-modal-' + BIEN_ID);
+                if (svgModal) { try { JsBarcode(svgModal, code, { format:"CODE128", width:4, height:130, displayValue:false, background:"#ffffff", lineColor:"#000000", margin:18 }); } catch(e) {} }
+            }
+
+            async function imprimerEtiquette() {
                 try {
-                    JsBarcode(svgMain, code, { format: "CODE128", width: 2.2, height: 52, displayValue: false, background: "#ffffff", lineColor: "#000000", margin: 6 });
-                } catch (e) { return false; }
+                    if (typeof JsBarcode === 'undefined' || typeof window.jspdf === 'undefined') { alert('Bibliothèques non chargées, rechargez la page.'); return; }
+                    const { jsPDF } = window.jspdf;
+                    const codeStr = String(CODE_VALUE).trim();
+                    if (!codeStr) throw new Error('Code vide');
+                    const labelWidthMm = 89, labelHeightMm = 36;
+                    const tempCanvas = document.createElement('canvas');
+                    tempCanvas.style.cssText = 'position:absolute;left:-9999px';
+                    document.body.appendChild(tempCanvas);
+                    JsBarcode(tempCanvas, codeStr, { format:"CODE128", width:2, height:50, displayValue:false, background:"#ffffff", lineColor:"#000000", margin:0 });
+                    const mmToPx = 3.779527559;
+                    const pdfCanvas = document.createElement('canvas');
+                    pdfCanvas.width = labelWidthMm * mmToPx; pdfCanvas.height = labelHeightMm * mmToPx;
+                    const ctx = pdfCanvas.getContext('2d');
+                    ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, pdfCanvas.width, pdfCanvas.height);
+                    const bw = Math.min(labelWidthMm - 10, tempCanvas.width / mmToPx);
+                    const bh = tempCanvas.height / mmToPx;
+                    ctx.drawImage(tempCanvas, ((labelWidthMm - bw) / 2) * mmToPx, ((labelHeightMm - bh - 6) / 2) * mmToPx, bw * mmToPx, bh * mmToPx);
+                    document.body.removeChild(tempCanvas);
+                    const pdf = new jsPDF({ orientation:'landscape', unit:'mm', format:[labelHeightMm, labelWidthMm] });
+                    pdf.addImage(pdfCanvas.toDataURL('image/png', 1.0), 'PNG', 0, 0, labelWidthMm, labelHeightMm);
+                    let y = labelHeightMm - 8;
+                    if (CODE_FORMATE.trim()) { pdf.setFontSize(7); pdf.setFont('courier','normal'); pdf.text(CODE_FORMATE, labelWidthMm/2, y, { align:'center' }); y += 5; }
+                    if (DESIGNATION.trim()) { pdf.setFontSize(6); pdf.setFont('helvetica','normal'); pdf.splitTextToSize(DESIGNATION, labelWidthMm - 4).forEach(line => { if (y < labelHeightMm - 1) { pdf.text(line, labelWidthMm/2, y, { align:'center' }); y += 2.5; } }); }
+                    const url = URL.createObjectURL(pdf.output('blob'));
+                    const win = window.open(url, '_blank');
+                    if (win) { win.onload = () => setTimeout(() => { win.print(); setTimeout(() => URL.revokeObjectURL(url), 1000); }, 250); }
+                    else { pdf.save('etiquette_' + CODE_VALUE + '.pdf'); }
+                } catch(e) { alert('Erreur: ' + e.message); }
             }
-            
-            const svgModal = document.getElementById('barcode-svg-modal-' + bienId);
-            if (svgModal) {
-                try {
-                    JsBarcode(svgModal, code, { format: "CODE128", width: 4, height: 130, displayValue: false, background: "#ffffff", lineColor: "#000000", margin: 18 });
-                } catch (e) {}
-            }
-            
-            return true;
-        }
-        
-        document.addEventListener('DOMContentLoaded', function() {
-            const btnPrintLabel = document.getElementById('btn-print-label-' + BIEN_ID);
-            if (btnPrintLabel) {
-                btnPrintLabel.addEventListener('click', function() {
-                    if (typeof window.imprimerEtiquette === 'function') window.imprimerEtiquette(BIEN_ID, CODE_VALUE);
-                });
-            }
-            
-            const btnPrintEtiquette = document.getElementById('btn-print-etiquette-' + BIEN_ID);
-            if (btnPrintEtiquette) {
-                btnPrintEtiquette.addEventListener('click', function() {
-                    if (typeof window.imprimerEtiquette === 'function') window.imprimerEtiquette(BIEN_ID, CODE_VALUE);
-                });
-            }
-        });
-        
-        window.addEventListener('load', function() {
-            setTimeout(function() {
-                if (typeof JsBarcode !== 'undefined') generateBarcode(BIEN_ID, CODE_VALUE);
-            }, 300);
-        });
 
-        window.imprimerEtiquette = async function(bienId, codeValue) {
-            try {
-                if (typeof JsBarcode === 'undefined' || typeof window.jspdf === 'undefined') {
-                    alert('Erreur: bibliothèques non chargées. Veuillez recharger la page.');
-                    return;
-                }
+            document.addEventListener('click', function(e) {
+                const btn = e.target.closest('[data-print-etiquette]');
+                if (btn && parseInt(btn.dataset.printEtiquette) === BIEN_ID) imprimerEtiquette();
+            });
 
-                const { jsPDF } = window.jspdf;
-                const codeStr = String(codeValue).trim();
-                if (!codeStr) throw new Error('Code vide');
-                
-                const labelWidthMm = 89, labelHeightMm = 36;
-                
-                const tempCanvas = document.createElement('canvas');
-                tempCanvas.style.position = 'absolute';
-                tempCanvas.style.left = '-9999px';
-                document.body.appendChild(tempCanvas);
-                
-                JsBarcode(tempCanvas, codeStr, { format: "CODE128", width: 2, height: 50, displayValue: false, background: "#ffffff", lineColor: "#000000", margin: 0 });
-                
-                const mmToPx = 3.779527559;
-                const pdfCanvas = document.createElement('canvas');
-                pdfCanvas.width = labelWidthMm * mmToPx;
-                pdfCanvas.height = labelHeightMm * mmToPx;
-                const pdfCtx = pdfCanvas.getContext('2d');
-                pdfCtx.fillStyle = '#ffffff';
-                pdfCtx.fillRect(0, 0, pdfCanvas.width, pdfCanvas.height);
-                
-                const barcodeWidthMm = Math.min(labelWidthMm - 10, (tempCanvas.width / mmToPx));
-                const barcodeHeightMm = (tempCanvas.height / mmToPx);
-                const barcodeX = (labelWidthMm - barcodeWidthMm) / 2;
-                const barcodeY = (labelHeightMm - barcodeHeightMm - 6) / 2;
-                
-                pdfCtx.drawImage(tempCanvas, barcodeX * mmToPx, barcodeY * mmToPx, barcodeWidthMm * mmToPx, barcodeHeightMm * mmToPx);
-                document.body.removeChild(tempCanvas);
-                
-                const pdf = new jsPDF({ orientation: 'landscape', unit: 'mm', format: [labelHeightMm, labelWidthMm] });
-                const imgData = pdfCanvas.toDataURL('image/png', 1.0);
-                pdf.addImage(imgData, 'PNG', 0, 0, labelWidthMm, labelHeightMm);
-                
-                let currentY = labelHeightMm - 8;
-                const codeFormate = window.CODE_FORMATE || '';
-                if (codeFormate.trim()) {
-                    pdf.setFontSize(7);
-                    pdf.setFont('courier', 'normal');
-                    pdf.text(codeFormate, labelWidthMm / 2, currentY, { align: 'center' });
-                    currentY += 5;
-                }
-                
-                const designation = window.DESIGNATION || '';
-                if (designation.trim()) {
-                    pdf.setFontSize(6);
-                    pdf.setFont('helvetica', 'normal');
-                    const lines = pdf.splitTextToSize(designation, labelWidthMm - 4);
-                    lines.forEach(line => {
-                        if (currentY < labelHeightMm - 1) {
-                            pdf.text(line, labelWidthMm / 2, currentY, { align: 'center' });
-                            currentY += 2.5;
-                        }
-                    });
-                }
-                
-                const pdfBlob = pdf.output('blob');
-                const pdfUrl = URL.createObjectURL(pdfBlob);
-                const printWindow = window.open(pdfUrl, '_blank');
-                
-                if (printWindow) {
-                    printWindow.onload = function() {
-                        setTimeout(() => { printWindow.print(); setTimeout(() => URL.revokeObjectURL(pdfUrl), 1000); }, 250);
-                    };
-                } else {
-                    pdf.save('etiquette_' + codeValue + '.pdf');
-                }
-            } catch (error) {
-                alert('Erreur: ' + error.message);
-            }
-        };
+            function init() { setTimeout(generateBarcode, 100); }
+            document.addEventListener('livewire:navigated', init);
+            if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', init); } else { init(); }
+        })();
     </script>
     @endif
-    
 </div>

@@ -5,7 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="<?php echo e(csrf_token()); ?>">
 
-    <title><?php echo e(config('app.name', 'Immos GIMTEL')); ?> - Connexion</title>
+    <title><?php echo e(config('app.name', 'Immos CNAM')); ?> - Connexion</title>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="<?php echo e(asset('images/icons/favicon.ico')); ?>">
+    <link rel="icon" type="image/png" sizes="32x32" href="<?php echo e(asset('images/icons/icon-32x32.png')); ?>">
+    <link rel="icon" type="image/png" sizes="16x16" href="<?php echo e(asset('images/icons/icon-16x16.png')); ?>">
+    <link rel="apple-touch-icon" sizes="180x180" href="<?php echo e(asset('images/icons/icon-180x180.png')); ?>">
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
@@ -75,4 +81,4 @@
 </body>
 </html>
 
-<?php /**PATH C:\xampp\htdocs\immos_gimtel\resources\views/components/guest-layout.blade.php ENDPATH**/ ?>
+<?php /**PATH C:\xampp\htdocs\immos cnam\resources\views/components/guest-layout.blade.php ENDPATH**/ ?>

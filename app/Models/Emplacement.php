@@ -52,4 +52,20 @@ class Emplacement extends Model
     {
         return $this->hasMany(Entree::class, 'idEmplacement', 'idEmplacement');
     }
+
+    /**
+     * Utilisateurs responsables de cet emplacement (occupants)
+     */
+    public function users(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'emplacement_user', 'idEmplacement', 'idUser');
+    }
+
+    /**
+     * Tickets de maintenance liés à cet emplacement
+     */
+    public function tickets(): HasMany
+    {
+        return $this->hasMany(Ticket::class, 'idEmplacement', 'idEmplacement');
+    }
 }

@@ -1,13 +1,12 @@
-<div class="py-6">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <!-- En-tête -->
+<div class="max-w-7xl mx-auto">
+    <!-- En-tête -->
         <div class="mb-6">
             <div class="flex items-center justify-between">
                 <div>
                     <h1 class="text-3xl font-bold text-gray-900">Gestion des Rôles RBAC</h1>
                     <p class="text-gray-500 mt-1">Attribuer les rôles administrateur et agent aux utilisateurs</p>
                 </div>
-                <a href="{{ route('users.index') }}" 
+                <a href="{{ route('users.index') }}" wire:navigate 
                    class="inline-flex items-center px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors">
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
@@ -37,49 +36,25 @@
         @endif
 
         <!-- Statistiques -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-            <div class="bg-white rounded-lg shadow p-6">
+        <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
+            @foreach([
+                ['label'=>'Total',       'sub'=>'Tous rôles',              'count'=>$stats['total'],       'color'=>'gray',   'emoji'=>'👥'],
+                ['label'=>'Admins',      'sub'=>'Accès complet',           'count'=>$stats['admins'],      'color'=>'purple', 'emoji'=>'👑'],
+                ['label'=>'Agents',      'sub'=>'Inventaire & biens',      'count'=>$stats['agents'],      'color'=>'blue',   'emoji'=>'👤'],
+                ['label'=>'Techniciens', 'sub'=>'Traitement tickets',      'count'=>$stats['techniciens'], 'color'=>'green',  'emoji'=>'🔧'],
+                ['label'=>'Occupants',   'sub'=>'Signalement tickets',     'count'=>$stats['occupants'],   'color'=>'orange', 'emoji'=>'🏢'],
+            ] as $s)
+            <div class="bg-white rounded-lg shadow p-4">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-sm font-medium text-gray-600">Total utilisateurs</p>
-                        <p class="text-3xl font-bold text-gray-900 mt-2">{{ $stats['total'] }}</p>
+                        <p class="text-sm font-medium text-gray-600">{{ $s['label'] }}</p>
+                        <p class="text-3xl font-bold text-{{ $s['color'] }}-600 mt-1">{{ $s['count'] }}</p>
+                        <p class="text-xs text-gray-400 mt-1">{{ $s['sub'] }}</p>
                     </div>
-                    <div class="text-4xl">👥</div>
+                    <div class="text-3xl">{{ $s['emoji'] }}</div>
                 </div>
             </div>
-
-            <div class="bg-white rounded-lg shadow p-6">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm font-medium text-gray-600">Administrateurs</p>
-                        <p class="text-3xl font-bold text-purple-600 mt-2">{{ $stats['admins'] }}</p>
-                        <p class="text-xs text-gray-500 mt-1">Accès complet</p>
-                    </div>
-                    <div class="text-4xl">👑</div>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-lg shadow p-6">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm font-medium text-gray-600">Admin Stock</p>
-                        <p class="text-3xl font-bold text-indigo-600 mt-2">{{ $stats['admin_stocks'] }}</p>
-                        <p class="text-xs text-gray-500 mt-1">Gestion stock complète</p>
-                    </div>
-                    <div class="text-4xl">📦</div>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-lg shadow p-6">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm font-medium text-gray-600">Agents</p>
-                        <p class="text-3xl font-bold text-blue-600 mt-2">{{ $stats['agents'] }}</p>
-                        <p class="text-xs text-gray-500 mt-1">Inventaire + Sorties</p>
-                    </div>
-                    <div class="text-4xl">👤</div>
-                </div>
-            </div>
+            @endforeach
         </div>
 
         <!-- Filtres -->
@@ -100,57 +75,18 @@
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Filtrer par rôle</label>
-                    <select wire:model.live="filterRole" 
+                    <select wire:model.live="filterRole"
                             class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
                         <option value="all">Tous les rôles</option>
-                        <option value="admin">Administrateurs uniquement</option>
-                        <option value="admin_stock">Admin Stock uniquement</option>
-                        <option value="agent">Agents uniquement</option>
+                        <option value="admin">Administrateurs</option>
+                        <option value="agent">Agents</option>
+                        <option value="technicien">Techniciens</option>
+                        <option value="occupant">Occupants</option>
                     </select>
                 </div>
             </div>
         </div>
 
-        <!-- Légende des permissions -->
-        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-            <h3 class="text-sm font-semibold text-blue-900 mb-3">📋 Permissions par rôle</h3>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                <div>
-                    <p class="font-semibold text-purple-700 mb-2">👑 Administrateur</p>
-                    <ul class="text-gray-700 space-y-1">
-                        <li>✅ Gestion complète des immobilisations</li>
-                        <li>✅ Gestion complète du stock</li>
-                        <li>✅ Création d'entrées de stock</li>
-                        <li>✅ Création de sorties de stock</li>
-                        <li>✅ Gestion des utilisateurs</li>
-                        <li>✅ Voir tous les mouvements</li>
-                    </ul>
-                </div>
-                <div>
-                    <p class="font-semibold text-indigo-700 mb-2">📦 Admin Stock</p>
-                    <ul class="text-gray-700 space-y-1">
-                        <li>✅ Gestion complète du stock</li>
-                        <li>✅ Création d'entrées de stock</li>
-                        <li>✅ Création de sorties de stock</li>
-                        <li>✅ Voir tous les mouvements</li>
-                        <li>✅ Gestion magasins, catégories, etc.</li>
-                        <li>❌ Gestion des immobilisations</li>
-                        <li>❌ Gestion des utilisateurs</li>
-                    </ul>
-                </div>
-                <div>
-                    <p class="font-semibold text-blue-700 mb-2">👤 Agent</p>
-                    <ul class="text-gray-700 space-y-1">
-                        <li>✅ Exécution des inventaires</li>
-                        <li>✅ Création de sorties de stock</li>
-                        <li>✅ Voir ses propres sorties</li>
-                        <li>❌ Gestion du stock (magasins, catégories, etc.)</li>
-                        <li>❌ Création d'entrées de stock</li>
-                        <li>❌ Gestion des utilisateurs</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
 
         <!-- Liste des utilisateurs -->
         <div class="bg-white rounded-lg shadow overflow-hidden">
@@ -169,70 +105,73 @@
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="flex items-center">
                                     <div class="flex-shrink-0 h-10 w-10 bg-indigo-100 rounded-full flex items-center justify-center">
-                                        <span class="text-indigo-600 font-semibold">{{ strtoupper(substr($user->users ?? 'U', 0, 1)) }}</span>
+                                        <span class="text-indigo-600 font-semibold">{{ strtoupper(substr($user->nom ?: $user->users ?: 'U', 0, 1)) }}</span>
                                     </div>
                                     <div class="ml-4">
-                                        <div class="text-sm font-medium text-gray-900">{{ $user->users ?? 'N/A' }}</div>
-                                        <div class="text-xs text-gray-500">ID: {{ $user->idUser }}</div>
+                                        <div class="text-sm font-medium text-gray-900">
+                                            {{ $user->nom ?: $user->users }}
+                                        </div>
+                                        <div class="text-xs text-gray-500">{{ $user->users }}</div>
+                                        @if($user->email)
+                                            <div class="text-xs text-gray-400">{{ $user->email }}</div>
+                                        @endif
                                     </div>
                                 </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                @if($user->role === 'admin')
-                                    <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-purple-100 text-purple-800 border border-purple-200">
-                                        👑 Administrateur
-                                    </span>
-                                @elseif($user->role === 'admin_stock')
-                                    <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-indigo-100 text-indigo-800 border border-indigo-200">
-                                        📦 Admin Stock
-                                    </span>
-                                @elseif($user->role === 'agent')
-                                    <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800 border border-blue-200">
-                                        👤 Agent
-                                    </span>
-                                @else
-                                    <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800 border border-gray-200">
-                                        ❓ Non défini
-                                    </span>
-                                @endif
+                                @php
+                                    $badge = match($user->role) {
+                                        'admin'      => ['bg-purple-100 text-purple-800 border-purple-200', '👑 Administrateur'],
+                                        'agent'      => ['bg-blue-100 text-blue-800 border-blue-200',       '👤 Agent'],
+                                        'technicien' => ['bg-green-100 text-green-800 border-green-200',    '🔧 Technicien'],
+                                        'occupant'   => ['bg-orange-100 text-orange-800 border-orange-200', '🏢 Occupant'],
+                                        default      => ['bg-gray-100 text-gray-800 border-gray-200',       '❓ Non défini'],
+                                    };
+                                @endphp
+                                <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full border {{ $badge[0] }}">
+                                    {{ $badge[1] }}
+                                </span>
                             </td>
-                            <td class="px-6 py-4 text-center">
-                                <div class="text-xs text-gray-600">
-                                    @if($user->role === 'admin')
-                                        <span class="text-green-600">✅ Accès complet</span>
-                                    @elseif($user->role === 'admin_stock')
-                                        <span class="text-indigo-600">✅ Gestion stock complète</span>
-                                    @elseif($user->role === 'agent')
-                                        <span class="text-blue-600">✅ Inventaire + Sorties</span>
-                                    @else
-                                        <span class="text-red-600">❌ Aucun accès</span>
-                                    @endif
-                                </div>
+                            <td class="px-6 py-4 text-center text-xs text-gray-600">
+                                @switch($user->role)
+                                    @case('admin')      <span class="text-purple-600">✅ Accès complet + tickets</span> @break
+                                    @case('agent')      <span class="text-blue-600">✅ Immobilisations + tickets</span> @break
+                                    @case('technicien') <span class="text-green-600">✅ Traitement des tickets</span>   @break
+                                    @case('occupant')   <span class="text-orange-600">✅ Signalement de tickets</span>  @break
+                                    @default            <span class="text-red-600">❌ Aucun accès</span>
+                                @endswitch
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                 @if($user->idUser === auth()->user()->idUser)
                                     <span class="text-gray-400 italic">Vous</span>
                                 @else
-                                    <div class="flex flex-col gap-1">
+                                    <div class="flex flex-col gap-1 items-end">
+                                        <a href="{{ route('users.permissions', $user->idUser) }}" wire:navigate
+                                           class="text-xs font-medium text-indigo-600 hover:text-indigo-900 border border-indigo-200 rounded px-2 py-1 hover:bg-indigo-50 transition-colors mb-1">
+                                            🔑 Permissions
+                                        </a>
                                         @if($user->role !== 'admin')
-                                            <button 
-                                                wire:click="confirmRoleChange({{ $user->idUser }}, '{{ $user->role }}', 'admin')"
-                                                class="text-purple-600 hover:text-purple-900 font-medium text-xs">
+                                            <button wire:click="confirmRoleChange({{ $user->idUser }}, 'admin')"
+                                                    class="text-xs font-medium text-gray-600 hover:text-indigo-700 transition-colors">
                                                 👑 Admin
                                             </button>
                                         @endif
-                                        @if($user->role !== 'admin_stock')
-                                            <button 
-                                                wire:click="confirmRoleChange({{ $user->idUser }}, '{{ $user->role }}', 'admin_stock')"
-                                                class="text-indigo-600 hover:text-indigo-900 font-medium text-xs">
-                                                📦 Admin Stock
+                                        @if($user->role !== 'agent')
+                                            <button wire:click="confirmRoleChange({{ $user->idUser }}, 'agent')"
+                                                    class="text-xs font-medium text-gray-600 hover:text-indigo-700 transition-colors">
+                                                👤 Agent
                                             </button>
                                         @endif
-                                        @if($user->role !== 'agent')
-                                            <button 
-                                                wire:click="confirmRoleChange({{ $user->idUser }}, '{{ $user->role }}', 'agent')"
-                                                class="text-blue-600 hover:text-blue-900 font-medium text-xs">
-                                                👤 Agent
+                                        @if($user->role !== 'technicien')
+                                            <button wire:click="confirmRoleChange({{ $user->idUser }}, 'technicien')"
+                                                    class="text-xs font-medium text-gray-600 hover:text-indigo-700 transition-colors">
+                                                🔧 Technicien
+                                            </button>
+                                        @endif
+                                        @if($user->role !== 'occupant')
+                                            <button wire:click="confirmRoleChange({{ $user->idUser }}, 'occupant')"
+                                                    class="text-xs font-medium text-gray-600 hover:text-indigo-700 transition-colors">
+                                                🏢 Occupant
                                             </button>
                                         @endif
                                     </div>
@@ -281,15 +220,15 @@
                                     </h3>
                                     <div class="mt-2">
                                         <p class="text-sm text-gray-500">
-                                            Êtes-vous sûr de vouloir changer le rôle de cet utilisateur en 
+                                            Êtes-vous sûr de vouloir changer le rôle de cet utilisateur en
                                             <strong class="text-indigo-600">
-                                                @if($newRole === 'admin')
-                                                    Administrateur
-                                                @elseif($newRole === 'admin_stock')
-                                                    Admin Stock
-                                                @else
-                                                    Agent
-                                                @endif
+                                                {{ match($newRole) {
+                                                    'admin'      => '👑 Administrateur',
+                                                    'agent'      => '👤 Agent',
+                                                    'technicien' => '🔧 Technicien',
+                                                    'occupant'   => '🏢 Occupant',
+                                                    default      => $newRole,
+                                                } }}
                                             </strong> ?
                                         </p>
                                         <div class="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
@@ -319,5 +258,4 @@
                 </div>
             </div>
         @endif
-    </div>
 </div>

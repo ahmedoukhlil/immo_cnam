@@ -1,4 +1,4 @@
-<div class="max-w-2xl mx-auto py-8 px-4 sm:px-6">
+<div class="max-w-2xl mx-auto">
     {{-- En-tête --}}
     <div class="mb-8">
         <h1 class="text-2xl font-bold text-gray-900">Mon profil</h1>

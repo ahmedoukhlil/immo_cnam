@@ -11,9 +11,9 @@
      <?php $__env->slot('logo', null, []); ?> 
         <div class="flex flex-col items-center mb-8 animate-fade-in">
             <div class="w-44 h-44 mb-2 transform hover:scale-105 transition-transform">
-                <img 
-                    src="<?php echo e(asset('gimtel_inventaire.png')); ?>" 
-                    alt="<?php echo e(config('app.name', 'Immos GIMTEL')); ?>"
+                <img
+                    src="<?php echo e(asset('cnam-logo.jpg')); ?>"
+                    alt="<?php echo e(config('app.name', 'Immos CNAM')); ?>"
                     class="w-full h-full object-contain drop-shadow-lg">
             </div>
         </div>
@@ -203,4 +203,4 @@
 <?php unset($__componentOriginalcb8170ac00b272413fe5b25f86fc5e3a); ?>
 <?php endif; ?>
 
-<?php /**PATH C:\xampp\htdocs\immos_gimtel\resources\views/auth/login.blade.php ENDPATH**/ ?>
+<?php /**PATH C:\xampp\htdocs\immos cnam\resources\views/auth/login.blade.php ENDPATH**/ ?>

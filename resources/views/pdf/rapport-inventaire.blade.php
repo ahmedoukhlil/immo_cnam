@@ -83,7 +83,7 @@
 <body>
 
     <div class="header">
-        GIMTEL — Rapport de rapprochement inventaire {{ $inventaire->annee }} | Édité le {{ now()->format('d/m/Y à H:i') }}
+        CNAM — Rapport de rapprochement inventaire {{ $inventaire->annee }} | Édité le {{ now()->format('d/m/Y à H:i') }}
     </div>
     <div class="footer">
         <span class="page-number"></span>

@@ -36,8 +36,10 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
-        'users',  // Nom d'utilisateur (selon immos.md)
-        'mdp',    // Mot de passe (selon immos.md)
+        'users',
+        'nom',
+        'email',
+        'mdp',
         'role',
     ];
 
@@ -151,6 +153,38 @@ class User extends Authenticatable
     }
 
     /**
+     * Emplacements dont l'utilisateur est responsable (occupant)
+     */
+    public function emplacements(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(Emplacement::class, 'emplacement_user', 'idUser', 'idEmplacement');
+    }
+
+    /**
+     * Tickets créés par cet utilisateur (occupant)
+     */
+    public function ticketsCrees(): HasMany
+    {
+        return $this->hasMany(Ticket::class, 'created_by', 'idUser');
+    }
+
+    /**
+     * Tickets assignés à cet utilisateur (technicien)
+     */
+    public function ticketsAssignes(): HasMany
+    {
+        return $this->hasMany(Ticket::class, 'assigned_to', 'idUser');
+    }
+
+    /**
+     * Interventions réalisées par ce technicien
+     */
+    public function interventions(): HasMany
+    {
+        return $this->hasMany(TicketIntervention::class, 'technicien_id', 'idUser');
+    }
+
+    /**
      * SCOPES
      */
 
@@ -196,10 +230,12 @@ class User extends Authenticatable
     public function getRoleNameAttribute(): string
     {
         return match($this->role) {
-            'admin' => 'Administrateur',
+            'admin'       => 'Administrateur',
             'admin_stock' => 'Admin Stock',
-            'agent' => 'Agent',
-            default => 'Non défini',
+            'agent'       => 'Agent',
+            'technicien'  => 'Technicien',
+            'occupant'    => 'Occupant',
+            default       => 'Non défini',
         };
     }
 
@@ -233,11 +269,66 @@ class User extends Authenticatable
 
     /**
      * Vérifie si l'utilisateur peut gérer les inventaires
-     * Admin et Agent peuvent gérer les inventaires
      */
     public function canManageInventaire(): bool
     {
         return in_array($this->role, ['admin', 'agent']);
+    }
+
+    public function isTechnicien(): bool
+    {
+        return $this->role === 'technicien';
+    }
+
+    public function isOccupant(): bool
+    {
+        return $this->role === 'occupant';
+    }
+
+    public function canAccessTickets(): bool
+    {
+        return in_array($this->role, ['admin', 'technicien', 'occupant', 'agent']);
+    }
+
+    // Relation permissions personnalisées
+    public function permissions(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(Permission::class, 'user_permissions', 'user_id', 'permission_id', 'idUser', 'id')
+                    ->withPivot('granted');
+    }
+
+    // Vérifier une permission (surcharge individuelle > défaut du rôle)
+    public function hasPermission(string $permissionName): bool
+    {
+        // Vérifier d'abord la surcharge individuelle
+        $override = $this->permissions()->where('name', $permissionName)->first();
+        if ($override) {
+            return (bool) $override->pivot->granted;
+        }
+        // Sinon, utiliser les permissions par défaut du rôle
+        return in_array($permissionName, Permission::defaultsForRole($this->role));
+    }
+
+    // Retourne toutes les permissions effectives (défaut rôle + surcharges)
+    public function effectivePermissions(): array
+    {
+        $defaults = Permission::defaultsForRole($this->role);
+        $overrides = $this->permissions()->get()->keyBy('name');
+
+        $all = Permission::pluck('name')->toArray();
+        $result = [];
+
+        foreach ($all as $perm) {
+            if ($overrides->has($perm)) {
+                if ($overrides[$perm]->pivot->granted) {
+                    $result[] = $perm;
+                }
+            } elseif (in_array($perm, $defaults)) {
+                $result[] = $perm;
+            }
+        }
+
+        return $result;
     }
 
     /**

@@ -1,4 +1,4 @@
-<div>
+<div class="max-w-7xl mx-auto">
     @php
         $isAdmin = auth()->user()->isAdmin();
         $natures = [
@@ -24,7 +24,7 @@
         <nav class="flex mb-4" aria-label="Breadcrumb">
             <ol class="inline-flex items-center space-x-1 md:space-x-3">
                 <li class="inline-flex items-center">
-                    <a href="{{ route('dashboard') }}" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-indigo-600">
+                    <a href="{{ route('dashboard') }}" wire:navigate class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-indigo-600">
                         <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
                             <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path>
                         </svg>
@@ -36,7 +36,7 @@
                         <svg class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
                         </svg>
-                        <a href="{{ route('localisations.index') }}" class="ml-1 text-sm font-medium text-gray-700 hover:text-indigo-600 md:ml-2">Localisations</a>
+                        <a href="{{ route('localisations.index') }}" wire:navigate class="ml-1 text-sm font-medium text-gray-700 hover:text-indigo-600 md:ml-2">Localisations</a>
                     </div>
                 </li>
                 <li aria-current="page">
@@ -62,7 +62,7 @@
             
             <div class="flex flex-wrap items-center gap-2">
                 <a 
-                    href="{{ route('localisations.index') }}"
+                    href="{{ route('localisations.index') }}" wire:navigate
                     class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -72,7 +72,7 @@
 
                 @if($isAdmin)
                     <a 
-                        href="{{ route('localisations.edit', $localisation) }}"
+                        href="{{ route('localisations.edit', $localisation) }}" wire:navigate
                         class="inline-flex items-center px-4 py-2 border border-transparent rounded-lg text-sm font-medium text-white bg-yellow-600 hover:bg-yellow-700 transition-colors">
                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -123,7 +123,7 @@
                         <div class="flex items-center gap-2">
                             <code class="px-3 py-2 bg-gray-100 rounded-lg text-lg font-mono font-bold">{{ $localisation->code }}</code>
                             <button 
-                                onclick="navigator.clipboard.writeText('{{ $localisation->code }}'); alert('Code copié !');"
+                                @click="navigator.clipboard.writeText('{{ $localisation->code }}').then(() => $dispatch('notify', 'Code copié !')).catch(() => alert('Copie impossible'))"
                                 class="p-2 text-gray-500 hover:text-gray-700 transition-colors"
                                 title="Copier">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -337,7 +337,7 @@
                                             </td>
                                             <td class="px-3 py-2 whitespace-nowrap text-right text-sm">
                                                 <a 
-                                                    href="{{ route('biens.show', $bien->NumOrdre) }}"
+                                                    href="{{ route('biens.show', $bien->NumOrdre) }}" wire:navigate
                                                     class="text-indigo-600 hover:text-indigo-900">
                                                     Voir
                                                 </a>
@@ -358,7 +358,7 @@
 
                     <div class="mt-4 flex gap-2">
                         <a 
-                            href="{{ route('biens.create') }}"
+                            href="{{ route('biens.create') }}" wire:navigate
                             class="inline-flex items-center px-4 py-2 border border-transparent rounded-lg text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700">
                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -499,21 +499,21 @@
                 <div class="space-y-2">
                     @if($localisation->batiment)
                         <a 
-                            href="{{ route('localisations.index', ['filterBatiment' => $localisation->batiment]) }}"
+                            href="{{ route('localisations.index', ['filterBatiment' => $localisation->batiment]) }}" wire:navigate
                             class="block w-full text-left px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
                             Voir toutes les localisations du bâtiment
                         </a>
                     @endif
                     @if($localisation->service_rattache)
                         <a 
-                            href="{{ route('localisations.index', ['filterService' => $localisation->service_rattache]) }}"
+                            href="{{ route('localisations.index', ['filterService' => $localisation->service_rattache]) }}" wire:navigate
                             class="block w-full text-left px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
                             Voir toutes les localisations du service
                         </a>
                     @endif
                     @if($localisation->etage !== null)
                         <a 
-                            href="{{ route('localisations.index', ['filterEtage' => $localisation->etage]) }}"
+                            href="{{ route('localisations.index', ['filterEtage' => $localisation->etage]) }}" wire:navigate
                             class="block w-full text-left px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
                             Voir toutes les localisations de l'étage
                         </a>

@@ -6,16 +6,16 @@
             return {{ count($this->filteredOptions) }};
         },
         init() {
-            this.$watch('open', value => {
+            const unwatch = this.$watch('open', value => {
+                this.focusedIndex = -1;
                 if (value) {
-                    this.focusedIndex = -1;
-                    this.$nextTick(() => {
-                        this.$refs.searchInput?.focus();
-                    });
-                } else {
-                    this.focusedIndex = -1;
+                    this.$nextTick(() => this.$refs.searchInput?.focus());
                 }
             });
+            this.$cleanup = unwatch;
+        },
+        destroy() {
+            if (this.$cleanup) this.$cleanup();
         },
         selectFocused() {
             if (this.focusedIndex >= 0 && this.filteredCount > 0) {

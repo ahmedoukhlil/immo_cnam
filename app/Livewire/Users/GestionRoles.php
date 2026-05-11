@@ -13,7 +13,7 @@ class GestionRoles extends Component
     use WithPagination;
 
     public $search = '';
-    public $filterRole = 'all'; // all, admin, admin_stock, agent
+    public $filterRole = 'all'; // all, admin, admin_stock, agent, technicien, occupant
     public $selectedUserId = null;
     public $newRole = '';
     public $confirmingRoleChange = false;
@@ -50,20 +50,10 @@ class GestionRoles extends Component
     /**
      * Confirmer le changement de rôle
      */
-    public function confirmRoleChange($userId, $currentRole, $targetRole = null)
+    public function confirmRoleChange($userId, $targetRole)
     {
         $this->selectedUserId = $userId;
-        
-        // Si un rôle cible est spécifié, l'utiliser
-        if ($targetRole) {
-            $this->newRole = $targetRole;
-        } else {
-            // Sinon, toggle entre les rôles
-            $roles = ['admin', 'admin_stock', 'agent'];
-            $currentIndex = array_search($currentRole, $roles);
-            $this->newRole = $roles[($currentIndex + 1) % count($roles)];
-        }
-        
+        $this->newRole = $targetRole;
         $this->confirmingRoleChange = true;
     }
 
@@ -112,12 +102,7 @@ class GestionRoles extends Component
         $user->role = $this->newRole;
         $user->save();
 
-        $roleNames = [
-            'admin' => 'administrateur',
-            'admin_stock' => 'admin stock',
-            'agent' => 'agent',
-        ];
-        $roleName = $roleNames[$this->newRole] ?? $this->newRole;
+        $roleName = $this->roleNames()[$this->newRole] ?? $this->newRole;
         session()->flash('success', "Le rôle de {$user->users} a été changé en {$roleName} avec succès.");
 
         $this->cancelRoleChange();
@@ -150,41 +135,41 @@ class GestionRoles extends Component
             }
         }
 
-        // Toggle le rôle dans l'ordre : admin -> admin_stock -> agent -> admin
-        $roles = ['admin', 'admin_stock', 'agent'];
+        $roles = ['admin', 'agent', 'technicien', 'occupant'];
         $currentIndex = array_search($user->role, $roles);
-        $nextIndex = ($currentIndex + 1) % count($roles);
+        $nextIndex = $currentIndex !== false ? ($currentIndex + 1) % count($roles) : 1;
         $user->role = $roles[$nextIndex];
         $user->save();
 
-        $roleNames = [
-            'admin' => 'administrateur',
-            'admin_stock' => 'admin stock',
-            'agent' => 'agent',
-        ];
-        $roleName = $roleNames[$user->role] ?? $user->role;
+        $roleName = $this->roleNames()[$user->role] ?? $user->role;
         session()->flash('success', "Le rôle de {$user->users} a été changé en {$roleName} avec succès.");
+    }
+
+    protected function roleNames(): array
+    {
+        return [
+            'admin'      => 'Administrateur',
+            'agent'      => 'Agent',
+            'technicien' => 'Technicien',
+            'occupant'   => 'Occupant',
+        ];
     }
 
     public function render()
     {
         $users = User::query()
-            ->when($this->search, function ($query) {
-                $query->where('users', 'like', '%' . $this->search . '%');
-            })
-            ->when($this->filterRole !== 'all', function ($query) {
-                $query->where('role', $this->filterRole);
-            })
-            ->orderByRaw("CASE role WHEN 'admin' THEN 1 WHEN 'admin_stock' THEN 2 WHEN 'agent' THEN 3 ELSE 4 END")
+            ->when($this->search, fn($q) => $q->where('users', 'like', '%' . $this->search . '%'))
+            ->when($this->filterRole !== 'all', fn($q) => $q->where('role', $this->filterRole))
+            ->orderByRaw("CASE role WHEN 'admin' THEN 1 WHEN 'agent' THEN 2 WHEN 'technicien' THEN 3 WHEN 'occupant' THEN 4 ELSE 5 END")
             ->orderBy('users')
             ->paginate(20);
 
-        // Statistiques
         $stats = [
-            'total' => User::count(),
-            'admins' => User::where('role', 'admin')->count(),
-            'admin_stocks' => User::where('role', 'admin_stock')->count(),
-            'agents' => User::where('role', 'agent')->count(),
+            'total'       => User::count(),
+            'admins'      => User::where('role', 'admin')->count(),
+            'agents'      => User::where('role', 'agent')->count(),
+            'techniciens' => User::where('role', 'technicien')->count(),
+            'occupants'   => User::where('role', 'occupant')->count(),
         ];
 
         return view('livewire.users.gestion-roles', [

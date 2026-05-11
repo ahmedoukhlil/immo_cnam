@@ -2,9 +2,9 @@
     <x-slot name="logo">
         <div class="flex flex-col items-center mb-8 animate-fade-in">
             <div class="w-44 h-44 mb-2 transform hover:scale-105 transition-transform">
-                <img 
-                    src="{{ asset('gimtel_inventaire.png') }}" 
-                    alt="{{ config('app.name', 'Immos GIMTEL') }}"
+                <img
+                    src="{{ asset('cnam-logo.jpg') }}"
+                    alt="{{ config('app.name', 'Immos CNAM') }}"
                     class="w-full h-full object-contain drop-shadow-lg">
             </div>
         </div>

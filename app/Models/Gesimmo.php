@@ -99,6 +99,14 @@ class Gesimmo extends Model
     }
 
     /**
+     * Tickets de maintenance liés à ce bien
+     */
+    public function tickets(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Ticket::class, 'bien_id', 'NumOrdre');
+    }
+
+    /**
      * ACCESSORS
      */
 

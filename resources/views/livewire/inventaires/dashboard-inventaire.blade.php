@@ -1,4 +1,29 @@
-<div>
+<div class="max-w-7xl mx-auto"
+    x-data="{
+        confirmModal: false,
+        confirmTitle: '',
+        confirmMessage: '',
+        confirmIcon: '',
+        confirmIconBg: '',
+        confirmBtnClass: '',
+        confirmBtnLabel: '',
+        confirmAction: null,
+        openConfirm(title, message, icon, iconBg, btnClass, btnLabel, action) {
+            this.confirmTitle = title;
+            this.confirmMessage = message;
+            this.confirmIcon = icon;
+            this.confirmIconBg = iconBg;
+            this.confirmBtnClass = btnClass;
+            this.confirmBtnLabel = btnLabel;
+            this.confirmAction = action;
+            this.confirmModal = true;
+        },
+        doConfirm() {
+            this.confirmModal = false;
+            if (this.confirmAction) this.confirmAction();
+        }
+    }"
+>
     @php
         $isAdmin = auth()->user()->isAdmin();
         $stats = $this->statistiques;
@@ -26,9 +51,9 @@
     <div class="mb-6">
         <nav class="flex mb-3" aria-label="Breadcrumb">
             <ol class="inline-flex items-center gap-1.5 text-sm text-gray-500">
-                <li><a href="{{ route('dashboard') }}" class="hover:text-indigo-600 transition-colors">Dashboard</a></li>
+                <li><a href="{{ route('dashboard') }}" wire:navigate class="hover:text-indigo-600 transition-colors">Dashboard</a></li>
                 <li><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg></li>
-                <li><a href="{{ route('inventaires.index') }}" class="hover:text-indigo-600 transition-colors">Inventaires</a></li>
+                <li><a href="{{ route('inventaires.index') }}" wire:navigate class="hover:text-indigo-600 transition-colors">Inventaires</a></li>
                 <li><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg></li>
                 <li class="text-gray-700 font-medium">{{ $inventaire->annee }}</li>
             </ol>
@@ -50,19 +75,52 @@
             <div class="flex flex-wrap items-center gap-2">
                 @if($isAdmin)
                     @if($inventaire->statut === 'en_preparation')
-                        <button wire:click="passerEnCours" wire:confirm="Voulez-vous démarrer cet inventaire ?" wire:loading.attr="disabled" class="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 disabled:opacity-50 transition-colors">
+                        <button
+                            @click="openConfirm(
+                                'Démarrer l\'inventaire',
+                                'Voulez-vous démarrer l\'inventaire {{ $inventaire->annee }} ? Les agents pourront commencer les scans.',
+                                'play',
+                                'bg-indigo-100',
+                                'bg-indigo-600 hover:bg-indigo-700 text-white',
+                                'Démarrer',
+                                () => $wire.passerEnCours()
+                            )"
+                            wire:loading.attr="disabled"
+                            class="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 disabled:opacity-50 transition-colors">
                             <svg wire:loading.remove wire:target="passerEnCours" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                             <svg wire:loading wire:target="passerEnCours" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>
                             Démarrer
                         </button>
                     @elseif($inventaire->statut === 'en_cours')
-                        <button wire:click="terminerInventaire" wire:confirm="Voulez-vous terminer cet inventaire ?" wire:loading.attr="disabled" class="inline-flex items-center gap-2 px-4 py-2 bg-amber-600 text-white text-sm font-medium rounded-lg hover:bg-amber-700 disabled:opacity-50 transition-colors">
+                        <button
+                            @click="openConfirm(
+                                'Terminer l\'inventaire',
+                                'Voulez-vous marquer l\'inventaire {{ $inventaire->annee }} comme terminé ?',
+                                'check',
+                                'bg-amber-100',
+                                'bg-amber-600 hover:bg-amber-700 text-white',
+                                'Terminer',
+                                () => $wire.terminerInventaire()
+                            )"
+                            wire:loading.attr="disabled"
+                            class="inline-flex items-center gap-2 px-4 py-2 bg-amber-600 text-white text-sm font-medium rounded-lg hover:bg-amber-700 disabled:opacity-50 transition-colors">
                             <svg wire:loading.remove wire:target="terminerInventaire" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                             <svg wire:loading wire:target="terminerInventaire" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>
                             Terminer
                         </button>
                     @elseif($inventaire->statut === 'termine')
-                        <button wire:click="cloturerInventaire" wire:confirm="Voulez-vous clôturer définitivement cet inventaire ? Cette action est irréversible." wire:loading.attr="disabled" class="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 disabled:opacity-50 transition-colors">
+                        <button
+                            @click="openConfirm(
+                                'Clôturer définitivement',
+                                'Cette action est irréversible. L\'inventaire {{ $inventaire->annee }} sera clôturé et ne pourra plus être modifié.',
+                                'lock',
+                                'bg-red-100',
+                                'bg-green-600 hover:bg-green-700 text-white',
+                                'Clôturer',
+                                () => $wire.cloturerInventaire()
+                            )"
+                            wire:loading.attr="disabled"
+                            class="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 disabled:opacity-50 transition-colors">
                             <svg wire:loading.remove wire:target="cloturerInventaire" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
                             <svg wire:loading wire:target="cloturerInventaire" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>
                             Clôturer
@@ -70,7 +128,7 @@
                     @endif
                 @endif
                 @if(in_array($inventaire->statut, ['termine', 'cloture']))
-                    <a href="{{ route('inventaires.rapport', $inventaire) }}" class="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50 transition-colors">
+                    <a href="{{ route('inventaires.rapport', $inventaire) }}" wire:navigate class="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50 transition-colors">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                         Voir rapport
                     </a>
@@ -463,7 +521,7 @@
                                     <span class="text-sm font-mono font-semibold text-gray-900">{{ $invLoc->localisation->CodeLocalisation ?? 'N/A' }}</span>
                                 </td>
                                 <td class="px-5 py-3">
-                                    <a href="{{ route('localisations.show', $invLoc->localisation) }}" class="text-sm text-gray-700 hover:text-indigo-600 transition-colors max-w-[240px] truncate block" title="{{ $invLoc->localisation->Localisation ?? '' }}">
+                                    <a href="{{ route('localisations.show', $invLoc->localisation) }}" wire:navigate class="text-sm text-gray-700 hover:text-indigo-600 transition-colors max-w-[240px] truncate block" title="{{ $invLoc->localisation->Localisation ?? '' }}">
                                         {{ $invLoc->localisation->Localisation ?? 'N/A' }}
                                     </a>
                                 </td>
@@ -515,7 +573,7 @@
                                     </div>
                                 </td>
                                 <td class="px-3 py-3 text-right">
-                                    <a href="{{ route('localisations.show', $invLoc->localisation) }}" class="inline-flex items-center gap-1 text-xs text-gray-400 hover:text-indigo-600 font-medium opacity-0 group-hover:opacity-100 transition-all">
+                                    <a href="{{ route('localisations.show', $invLoc->localisation) }}" wire:navigate class="inline-flex items-center gap-1 text-xs text-gray-400 hover:text-indigo-600 font-medium opacity-0 group-hover:opacity-100 transition-all">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
                                     </a>
                                 </td>
@@ -589,7 +647,7 @@
                         $progressBarColor = $progression >= 100 ? 'bg-green-500' : ($progression >= 50 ? 'bg-blue-500' : ($progression > 0 ? 'bg-indigo-400' : 'bg-gray-200'));
                     @endphp
                     <div class="border-b border-gray-100 border-l-[3px] {{ $cardBorder }} hover:bg-gray-50/50 transition-colors">
-                        <a href="{{ route('localisations.show', $invLoc->localisation) }}" class="block px-4 pt-3.5 pb-2">
+                        <a href="{{ route('localisations.show', $invLoc->localisation) }}" wire:navigate class="block px-4 pt-3.5 pb-2">
                             <div class="flex items-start justify-between gap-3 mb-2.5">
                                 <div class="min-w-0 flex-1">
                                     <p class="text-sm font-semibold text-gray-900 truncate">{{ $invLoc->localisation->Localisation ?? 'N/A' }}</p>
@@ -838,5 +896,74 @@
                 <button @click="show = false" class="ml-2 text-red-200 hover:text-white"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/></svg></button>
             </div>
         @endif
+    </div>
+
+    {{-- ========================================== --}}
+    {{-- MODAL DE CONFIRMATION                       --}}
+    {{-- ========================================== --}}
+    <div
+        x-show="confirmModal"
+        x-transition:enter="ease-out duration-200"
+        x-transition:enter-start="opacity-0"
+        x-transition:enter-end="opacity-100"
+        x-transition:leave="ease-in duration-150"
+        x-transition:leave-start="opacity-100"
+        x-transition:leave-end="opacity-0"
+        class="fixed inset-0 z-50 flex items-center justify-center p-4"
+        style="display: none;"
+        @keydown.escape.window="confirmModal = false"
+    >
+        {{-- Overlay --}}
+        <div class="absolute inset-0 bg-gray-900/50 backdrop-blur-sm" @click="confirmModal = false"></div>
+
+        {{-- Panel --}}
+        <div
+            x-show="confirmModal"
+            x-transition:enter="ease-out duration-200"
+            x-transition:enter-start="opacity-0 scale-95 translate-y-2"
+            x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+            x-transition:leave="ease-in duration-150"
+            x-transition:leave-start="opacity-100 scale-100 translate-y-0"
+            x-transition:leave-end="opacity-0 scale-95 translate-y-2"
+            class="relative bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden"
+        >
+            {{-- Header coloré --}}
+            <div class="px-6 pt-6 pb-4 flex items-start gap-4">
+                <div :class="confirmIconBg" class="flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center">
+                    <template x-if="confirmIcon === 'play'">
+                        <svg class="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    </template>
+                    <template x-if="confirmIcon === 'check'">
+                        <svg class="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    </template>
+                    <template x-if="confirmIcon === 'lock'">
+                        <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                    </template>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <h3 class="text-lg font-semibold text-gray-900" x-text="confirmTitle"></h3>
+                    <p class="mt-1 text-sm text-gray-500 leading-relaxed" x-text="confirmMessage"></p>
+                </div>
+            </div>
+
+            {{-- Séparateur --}}
+            <div class="h-px bg-gray-100 mx-6"></div>
+
+            {{-- Actions --}}
+            <div class="px-6 py-4 flex items-center justify-end gap-3">
+                <button
+                    @click="confirmModal = false"
+                    class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300"
+                >
+                    Annuler
+                </button>
+                <button
+                    @click="doConfirm()"
+                    :class="confirmBtnClass"
+                    class="px-5 py-2 text-sm font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 shadow-sm"
+                    x-text="confirmBtnLabel"
+                ></button>
+            </div>
+        </div>
     </div>
 </div>

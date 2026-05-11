@@ -1,17 +1,21 @@
-<div>
+<div class="max-w-7xl mx-auto">
     <div class="space-y-6">
         {{-- Header avec titre et actions --}}
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
                 <h1 class="text-3xl font-bold text-gray-900">Gestion des Utilisateurs</h1>
                 <p class="mt-1 text-sm text-gray-500">
-                    {{ $stats['total'] }} utilisateur(s) | {{ $stats['admins'] }} administrateur(s) | {{ $stats['agents'] }} agent(s)
+                    {{ $stats['total'] }} utilisateur(s) &nbsp;·&nbsp;
+                    {{ $stats['admins'] }} admin &nbsp;·&nbsp;
+                    {{ $stats['agents'] }} agent &nbsp;·&nbsp;
+                    {{ $stats['techniciens'] }} technicien(s) &nbsp;·&nbsp;
+                    {{ $stats['occupants'] }} occupant(s)
                 </p>
             </div>
             
             <div class="flex flex-wrap items-center gap-2">
                 <a 
-                    href="{{ route('users.roles') }}"
+                    href="{{ route('users.roles') }}" wire:navigate
                     class="inline-flex items-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium rounded-lg transition-colors">
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
@@ -19,7 +23,7 @@
                     Gérer les rôles RBAC
                 </a>
                 <a 
-                    href="{{ route('users.create') }}"
+                    href="{{ route('users.create') }}" wire:navigate
                     class="inline-flex items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg transition-colors">
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -30,46 +34,28 @@
         </div>
 
         {{-- Statistiques --}}
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
+            @foreach([
+                ['label'=>'Total',        'count'=>$stats['total'],       'color'=>'blue',   'icon'=>'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z'],
+                ['label'=>'Admins',       'count'=>$stats['admins'],      'color'=>'purple', 'icon'=>'M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z'],
+                ['label'=>'Agents',       'count'=>$stats['agents'],      'color'=>'blue',   'icon'=>'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z'],
+                ['label'=>'Techniciens',  'count'=>$stats['techniciens'], 'color'=>'green',  'icon'=>'M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z'],
+                ['label'=>'Occupants',    'count'=>$stats['occupants'],   'color'=>'orange', 'icon'=>'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6'],
+            ] as $stat)
             <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-sm text-gray-500">Total</p>
-                        <p class="text-2xl font-bold text-gray-900">{{ $stats['total'] }}</p>
+                        <p class="text-xs text-gray-500">{{ $stat['label'] }}</p>
+                        <p class="text-2xl font-bold text-{{ $stat['color'] }}-600">{{ $stat['count'] }}</p>
                     </div>
-                    <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                        <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                    <div class="w-10 h-10 bg-{{ $stat['color'] }}-100 rounded-lg flex items-center justify-center">
+                        <svg class="w-5 h-5 text-{{ $stat['color'] }}-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $stat['icon'] }}"/>
                         </svg>
                     </div>
                 </div>
             </div>
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm text-gray-500">Administrateurs</p>
-                        <p class="text-2xl font-bold text-purple-600">{{ $stats['admins'] }}</p>
-                    </div>
-                    <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                        <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                        </svg>
-                    </div>
-                </div>
-            </div>
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm text-gray-500">Agents</p>
-                        <p class="text-2xl font-bold text-blue-600">{{ $stats['agents'] }}</p>
-                    </div>
-                    <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                        <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                        </svg>
-                    </div>
-                </div>
-            </div>
+            @endforeach
         </div>
 
         {{-- Barre de filtres --}}
@@ -122,9 +108,11 @@
                         <livewire:components.searchable-select
                             wire:model.live="filterRole"
                             :options="[
-                                ['value' => 'all', 'text' => 'Tous les rôles'],
-                                ['value' => 'admin', 'text' => 'Administrateur'],
-                                ['value' => 'agent', 'text' => 'Agent'],
+                                ['value' => 'all',        'text' => 'Tous les rôles'],
+                                ['value' => 'admin',      'text' => 'Administrateur'],
+                                ['value' => 'agent',      'text' => 'Agent'],
+                                ['value' => 'technicien', 'text' => 'Technicien'],
+                                ['value' => 'occupant',   'text' => 'Occupant'],
                             ]"
                             placeholder="Tous les rôles"
                             search-placeholder="Rechercher un rôle..."
@@ -226,27 +214,41 @@
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="flex items-center">
-                                        <div class="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 font-semibold mr-3">
-                                            {{ strtoupper(substr($user->users, 0, 1)) }}
+                                        <div class="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 font-semibold mr-3 flex-shrink-0">
+                                            {{ strtoupper(substr($user->nom ?: $user->users, 0, 1)) }}
                                         </div>
                                         <div>
-                                            <div class="text-sm font-medium text-gray-900">{{ $user->users }}</div>
-                                            @if($user->idUser === auth()->id())
-                                                <div class="text-xs text-gray-500">(Vous)</div>
+                                            <div class="text-sm font-medium text-gray-900">
+                                                {{ $user->nom ?: $user->users }}
+                                                @if($user->idUser === auth()->id())
+                                                    <span class="text-xs text-gray-400 ml-1">(Vous)</span>
+                                                @endif
+                                            </div>
+                                            <div class="text-xs text-gray-500">{{ $user->users }}</div>
+                                            @if($user->email)
+                                                <div class="text-xs text-gray-400">{{ $user->email }}</div>
                                             @endif
                                         </div>
                                     </div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
-                                        {{ $user->role === 'admin' ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800' }}">
+                                    @php
+                                        $roleColor = match($user->role) {
+                                            'admin'      => 'bg-purple-100 text-purple-800',
+                                            'agent'      => 'bg-blue-100 text-blue-800',
+                                            'technicien' => 'bg-green-100 text-green-800',
+                                            'occupant'   => 'bg-orange-100 text-orange-800',
+                                            default      => 'bg-gray-100 text-gray-800',
+                                        };
+                                    @endphp
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $roleColor }}">
                                         {{ $user->role_name }}
                                     </span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                     <div class="flex items-center justify-end space-x-2">
                                         <a 
-                                            href="{{ route('users.edit', $user->idUser) }}"
+                                            href="{{ route('users.edit', $user->idUser) }}" wire:navigate
                                             class="text-indigo-600 hover:text-indigo-900">
                                             Modifier
                                         </a>

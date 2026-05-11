@@ -9,6 +9,7 @@ use App\Models\InventaireScan;
 use App\Models\Localisation;
 use App\Models\LocalisationImmo;
 use App\Models\Emplacement;
+use App\Models\Ticket;
 use Carbon\Carbon;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
@@ -28,14 +29,21 @@ class Dashboard extends Component
     public $biensCetteAnnee = 0;
     public $nombreBatiments = 0;
     public $emplacementsInventories = [];
+    public $statsTickets = [];
 
     public function mount()
     {
+        $user = auth()->user();
+        if ($user->isOccupant() || $user->isTechnicien()) {
+            return; // Pas de stats pour ces rôles, la vue affichera un dashboard simplifié
+        }
         $this->loadStatistics();
     }
 
     public function refresh()
     {
+        $user = auth()->user();
+        if ($user->isOccupant() || $user->isTechnicien()) return;
         $this->loadStatistics();
     }
 
@@ -107,6 +115,13 @@ class Dashboard extends Component
                 }
             }
             
+            // Stats tickets
+            try {
+                $this->loadTicketStats();
+            } catch (\Exception $e) {
+                \Log::warning('Erreur lors du chargement des stats tickets: ' . $e->getMessage());
+            }
+
             // Dernières actions
             try {
                 $this->loadRecentActions();
@@ -215,10 +230,12 @@ class Dashboard extends Component
 
         $this->progressionParService = collect($services)->map(function ($data, $service) {
             return [
-                'service' => $service,
+                'service'     => $service,
+                'total'       => $data['total'],
+                'termine'     => $data['termine'],
                 'progression' => $data['total'] > 0 ? round(($data['termine'] / $data['total']) * 100, 1) : 0,
             ];
-        })->values()->toArray();
+        })->sortByDesc('progression')->values()->toArray();
 
         // Statistiques globales
         try {
@@ -314,6 +331,54 @@ class Dashboard extends Component
         }
     }
 
+    private function loadTicketStats()
+    {
+        $total   = Ticket::count();
+        $ouverts = Ticket::where('statut', 'ouvert')->count();
+        $enCours = Ticket::whereIn('statut', ['assigne', 'en_cours'])->count();
+        $resolus = Ticket::whereIn('statut', ['resolu', 'ferme'])->count();
+
+        // Délai moyen de résolution (en heures) sur les tickets fermés ce mois
+        $delaiMoyen = Ticket::where('statut', 'ferme')
+            ->whereNotNull('resolved_at')
+            ->whereMonth('resolved_at', now()->month)
+            ->selectRaw('AVG(TIMESTAMPDIFF(HOUR, created_at, resolved_at)) as avg_hours')
+            ->value('avg_hours');
+
+        // Tickets par priorité
+        $parPriorite = Ticket::selectRaw('priorite, COUNT(*) as nb')
+            ->whereIn('statut', ['ouvert', 'assigne', 'en_cours'])
+            ->groupBy('priorite')
+            ->pluck('nb', 'priorite')
+            ->toArray();
+
+        // Tickets ouverts ce mois
+        $cesMois = Ticket::whereMonth('created_at', now()->month)
+            ->whereYear('created_at', now()->year)
+            ->count();
+
+        // Tickets urgents non traités
+        $urgentsEnAttente = Ticket::where('priorite', 'urgente')
+            ->whereIn('statut', ['ouvert', 'assigne', 'en_cours'])
+            ->count();
+
+        $this->statsTickets = [
+            'total'            => $total,
+            'ouverts'          => $ouverts,
+            'en_cours'         => $enCours,
+            'resolus'          => $resolus,
+            'ces_mois'         => $cesMois,
+            'urgents_en_attente' => $urgentsEnAttente,
+            'delai_moyen_h'    => $delaiMoyen ? round($delaiMoyen, 1) : null,
+            'par_priorite'     => [
+                'basse'   => $parPriorite['basse']   ?? 0,
+                'normale' => $parPriorite['normale']  ?? 0,
+                'haute'   => $parPriorite['haute']    ?? 0,
+                'urgente' => $parPriorite['urgente']  ?? 0,
+            ],
+        ];
+    }
+
     private function loadRecentActions()
     {
         $actions = collect();
@@ -334,7 +399,7 @@ class Dashboard extends Component
                     
                     $actions->push([
                         'type' => 'scan',
-                        'icon' => '📋',
+                        'icon' => 'scan',
                         'message' => "{$agentName} a scanné {$bienDesignation} dans {$localisationNom}",
                         'time' => $scan->date_scan,
                     ]);
@@ -357,14 +422,14 @@ class Dashboard extends Component
                 if ($inventaire->statut === 'en_cours' && $inventaire->date_debut) {
                     $actions->push([
                         'type' => 'inventaire_started',
-                        'icon' => '🚀',
+                        'icon' => 'inventaire_started',
                         'message' => "{$creatorName} a démarré l'inventaire {$inventaire->annee}",
                         'time' => $inventaire->date_debut,
                     ]);
                 } elseif ($inventaire->statut === 'cloture' && $inventaire->date_fin) {
                     $actions->push([
                         'type' => 'inventaire_closed',
-                        'icon' => '✅',
+                        'icon' => 'inventaire_closed',
                         'message' => "L'inventaire {$inventaire->annee} a été clôturé",
                         'time' => $inventaire->date_fin,
                     ]);
@@ -381,7 +446,7 @@ class Dashboard extends Component
                 foreach ($localisationsRecentes as $localisation) {
                     $actions->push([
                         'type' => 'localisation_created',
-                        'icon' => '📍',
+                        'icon' => 'localisation',
                         'message' => "Nouvelle localisation créée: {$localisation->code} - {$localisation->designation}",
                         'time' => $localisation->created_at,
                     ]);
