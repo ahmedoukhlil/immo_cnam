@@ -225,14 +225,14 @@
         {{-- Colonne droite --}}
         <div class="space-y-6">
 
-            {{-- Code-barres --}}
+            {{-- QR Code --}}
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-                <h2 class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">Code-barres</h2>
-                <div class="cursor-pointer hover:opacity-80 transition-opacity bg-white border border-gray-200 rounded-xl p-3 mb-3"
+                <h2 class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">QR Code</h2>
+                <div class="cursor-pointer hover:opacity-80 transition-opacity bg-white border border-gray-200 rounded-xl p-3 mb-3 flex items-center justify-center"
                     @click="$dispatch('open-barcode-modal')" title="Cliquez pour agrandir">
-                    <svg id="barcode-svg-{{ $bien->NumOrdre }}" width="100%" height="56" style="display:block;"></svg>
+                    <div id="qrcode-{{ $bien->NumOrdre }}" style="display:flex;justify-content:center;"></div>
                 </div>
-                <p class="text-center text-[11px] text-gray-400 mb-3">Code 128 · 89mm × 36mm · <span class="font-mono">{{ $bien->NumOrdre }}</span></p>
+                <p class="text-center text-[11px] text-gray-400 mb-3">QR Code · <span class="font-mono">{{ $bien->NumOrdre }}</span></p>
                 <button data-print-etiquette="{{ $bien->NumOrdre }}"
                     class="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-white bg-indigo-600 rounded-xl hover:bg-indigo-700 transition-colors">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
@@ -368,7 +368,7 @@
         @endif
     </div>
 
-    {{-- Modal Code-barres agrandi --}}
+    {{-- Modal QR Code agrandi --}}
     <div x-data="{ open: false }" x-on:open-barcode-modal.window="open = true"
         x-show="open" x-transition:enter="ease-out duration-200" x-transition:enter-start="opacity-0"
         x-transition:enter-end="opacity-100" x-transition:leave="ease-in duration-150"
@@ -376,14 +376,14 @@
         @keydown.escape.window="open = false"
         class="fixed inset-0 z-50 flex items-center justify-center p-4" style="display:none;" x-cloak>
         <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="open = false"></div>
-        <div class="relative bg-white rounded-2xl p-8 max-w-2xl w-full shadow-2xl" @click.stop
+        <div class="relative bg-white rounded-2xl p-8 max-w-sm w-full shadow-2xl" @click.stop
             x-transition:enter="ease-out duration-200" x-transition:enter-start="opacity-0 scale-95"
             x-transition:enter-end="opacity-100 scale-100">
             <button @click="open = false" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
             </button>
             <div class="flex items-center justify-center bg-white p-6 rounded-xl border border-gray-100">
-                <svg id="barcode-svg-modal-{{ $bien->NumOrdre }}" width="100%" height="180" style="display:block; max-width:100%;"></svg>
+                <div id="qrcode-modal-{{ $bien->NumOrdre }}" style="display:flex;justify-content:center;"></div>
             </div>
             <div class="text-center mt-4 space-y-1">
                 <p class="text-sm font-mono font-bold text-gray-800">{{ $bien->NumOrdre }}</p>
@@ -438,62 +438,107 @@
     @endif
 
     @if(isset($bien) && $bien->NumOrdre)
-    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script>
         (function() {
             const BIEN_ID      = {{ $bien->NumOrdre }};
-            const CODE_VALUE   = {{ $bien->NumOrdre }};
+            const CODE_VALUE   = '{{ $bien->NumOrdre }}';
             const CODE_FORMATE = @json($bien->code_formate ?? '');
             const DESIGNATION  = @json($bien->designation->designation ?? '');
 
-            function generateBarcode() {
-                if (!CODE_VALUE || typeof JsBarcode === 'undefined') return;
-                const code = String(CODE_VALUE).trim();
-                const svgMain = document.getElementById('barcode-svg-' + BIEN_ID);
-                if (svgMain) { try { JsBarcode(svgMain, code, { format:"CODE128", width:2.2, height:52, displayValue:false, background:"#ffffff", lineColor:"#000000", margin:6 }); } catch(e) {} }
-                const svgModal = document.getElementById('barcode-svg-modal-' + BIEN_ID);
-                if (svgModal) { try { JsBarcode(svgModal, code, { format:"CODE128", width:4, height:130, displayValue:false, background:"#ffffff", lineColor:"#000000", margin:18 }); } catch(e) {} }
+            function generateQRCode() {
+                if (typeof QRCode === 'undefined') return;
+
+                const mainEl = document.getElementById('qrcode-' + BIEN_ID);
+                if (mainEl && mainEl.innerHTML === '') {
+                    new QRCode(mainEl, {
+                        text: CODE_VALUE,
+                        width: 120,
+                        height: 120,
+                        colorDark: '#000000',
+                        colorLight: '#ffffff',
+                        correctLevel: QRCode.CorrectLevel.M
+                    });
+                }
+
+                const modalEl = document.getElementById('qrcode-modal-' + BIEN_ID);
+                if (modalEl && modalEl.innerHTML === '') {
+                    new QRCode(modalEl, {
+                        text: CODE_VALUE,
+                        width: 240,
+                        height: 240,
+                        colorDark: '#000000',
+                        colorLight: '#ffffff',
+                        correctLevel: QRCode.CorrectLevel.M
+                    });
+                }
             }
 
             async function imprimerEtiquette() {
                 try {
-                    if (typeof JsBarcode === 'undefined' || typeof window.jspdf === 'undefined') { alert('Bibliothèques non chargées, rechargez la page.'); return; }
+                    if (typeof QRCode === 'undefined' || typeof window.jspdf === 'undefined') { alert('Bibliothèques non chargées, rechargez la page.'); return; }
                     const { jsPDF } = window.jspdf;
-                    const codeStr = String(CODE_VALUE).trim();
-                    if (!codeStr) throw new Error('Code vide');
-                    const labelWidthMm = 89, labelHeightMm = 36;
-                    const tempCanvas = document.createElement('canvas');
-                    tempCanvas.style.cssText = 'position:absolute;left:-9999px';
-                    document.body.appendChild(tempCanvas);
-                    JsBarcode(tempCanvas, codeStr, { format:"CODE128", width:2, height:50, displayValue:false, background:"#ffffff", lineColor:"#000000", margin:0 });
+                    const labelWidthMm = 60, labelHeightMm = 60;
                     const mmToPx = 3.779527559;
-                    const pdfCanvas = document.createElement('canvas');
-                    pdfCanvas.width = labelWidthMm * mmToPx; pdfCanvas.height = labelHeightMm * mmToPx;
-                    const ctx = pdfCanvas.getContext('2d');
-                    ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, pdfCanvas.width, pdfCanvas.height);
-                    const bw = Math.min(labelWidthMm - 10, tempCanvas.width / mmToPx);
-                    const bh = tempCanvas.height / mmToPx;
-                    ctx.drawImage(tempCanvas, ((labelWidthMm - bw) / 2) * mmToPx, ((labelHeightMm - bh - 6) / 2) * mmToPx, bw * mmToPx, bh * mmToPx);
-                    document.body.removeChild(tempCanvas);
-                    const pdf = new jsPDF({ orientation:'landscape', unit:'mm', format:[labelHeightMm, labelWidthMm] });
-                    pdf.addImage(pdfCanvas.toDataURL('image/png', 1.0), 'PNG', 0, 0, labelWidthMm, labelHeightMm);
-                    let y = labelHeightMm - 8;
-                    if (CODE_FORMATE.trim()) { pdf.setFontSize(7); pdf.setFont('courier','normal'); pdf.text(CODE_FORMATE, labelWidthMm/2, y, { align:'center' }); y += 5; }
-                    if (DESIGNATION.trim()) { pdf.setFontSize(6); pdf.setFont('helvetica','normal'); pdf.splitTextToSize(DESIGNATION, labelWidthMm - 4).forEach(line => { if (y < labelHeightMm - 1) { pdf.text(line, labelWidthMm/2, y, { align:'center' }); y += 2.5; } }); }
-                    const url = URL.createObjectURL(pdf.output('blob'));
-                    const win = window.open(url, '_blank');
-                    if (win) { win.onload = () => setTimeout(() => { win.print(); setTimeout(() => URL.revokeObjectURL(url), 1000); }, 250); }
-                    else { pdf.save('etiquette_' + CODE_VALUE + '.pdf'); }
+
+                    // Générer QR code dans un canvas temporaire
+                    const tempDiv = document.createElement('div');
+                    tempDiv.style.cssText = 'position:absolute;left:-9999px';
+                    document.body.appendChild(tempDiv);
+                    const qr = new QRCode(tempDiv, {
+                        text: CODE_VALUE,
+                        width: 200, height: 200,
+                        colorDark: '#000000', colorLight: '#ffffff',
+                        correctLevel: QRCode.CorrectLevel.M
+                    });
+
+                    setTimeout(() => {
+                        const qrImg = tempDiv.querySelector('img') || tempDiv.querySelector('canvas');
+                        const pdfCanvas = document.createElement('canvas');
+                        pdfCanvas.width = labelWidthMm * mmToPx;
+                        pdfCanvas.height = labelHeightMm * mmToPx;
+                        const ctx = pdfCanvas.getContext('2d');
+                        ctx.fillStyle = '#ffffff';
+                        ctx.fillRect(0, 0, pdfCanvas.width, pdfCanvas.height);
+
+                        const qrSize = Math.min(labelWidthMm, labelHeightMm) - 10;
+                        const qrSizePx = qrSize * mmToPx;
+                        const offsetX = ((labelWidthMm - qrSize) / 2) * mmToPx;
+                        const offsetY = 4 * mmToPx;
+
+                        if (qrImg) ctx.drawImage(qrImg, offsetX, offsetY, qrSizePx, qrSizePx);
+                        document.body.removeChild(tempDiv);
+
+                        const pdf = new jsPDF({ orientation:'portrait', unit:'mm', format:[labelWidthMm, labelHeightMm] });
+                        pdf.addImage(pdfCanvas.toDataURL('image/png', 1.0), 'PNG', 0, 0, labelWidthMm, labelHeightMm);
+
+                        let y = offsetY + qrSize + 6;
+                        if (CODE_FORMATE && CODE_FORMATE.trim()) {
+                            pdf.setFontSize(6); pdf.setFont('courier','normal');
+                            pdf.text(CODE_FORMATE, labelWidthMm/2, y, { align:'center' }); y += 4;
+                        }
+                        if (DESIGNATION && DESIGNATION.trim()) {
+                            pdf.setFontSize(5); pdf.setFont('helvetica','normal');
+                            pdf.splitTextToSize(DESIGNATION, labelWidthMm - 4).slice(0,2).forEach(line => {
+                                if (y < labelHeightMm - 1) { pdf.text(line, labelWidthMm/2, y, { align:'center' }); y += 3; }
+                            });
+                        }
+
+                        const url = URL.createObjectURL(pdf.output('blob'));
+                        const win = window.open(url, '_blank');
+                        if (win) { win.onload = () => setTimeout(() => { win.print(); setTimeout(() => URL.revokeObjectURL(url), 1000); }, 250); }
+                        else { pdf.save('etiquette_' + CODE_VALUE + '.pdf'); }
+                    }, 200);
                 } catch(e) { alert('Erreur: ' + e.message); }
             }
 
             document.addEventListener('click', function(e) {
                 const btn = e.target.closest('[data-print-etiquette]');
-                if (btn && parseInt(btn.dataset.printEtiquette) === BIEN_ID) imprimerEtiquette();
+                if (btn && btn.dataset.printEtiquette == BIEN_ID) imprimerEtiquette();
             });
 
-            function init() { setTimeout(generateBarcode, 100); }
+            function init() { setTimeout(generateQRCode, 100); }
             document.addEventListener('livewire:navigated', init);
             if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', init); } else { init(); }
         })();

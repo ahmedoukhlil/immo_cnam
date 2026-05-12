@@ -114,7 +114,7 @@
                 currentPath: window.location.pathname,
                 activeMenu(path) {
                     if (path.startsWith('/biens')) return 'immobilisations';
-                    if (path.startsWith('/localisations') || path.startsWith('/affectations') || path.startsWith('/emplacements') || path.startsWith('/designations')) return 'parametres';
+                    if (path.startsWith('/localisations') || path.startsWith('/affectations') || path.startsWith('/emplacements') || path.startsWith('/designations') || path.startsWith('/parametres')) return 'parametres';
                     if (path.startsWith('/tickets')) return 'tickets';
                     return '';
                 },
