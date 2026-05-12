@@ -228,11 +228,16 @@
             {{-- QR Code --}}
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
                 <h2 class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">QR Code</h2>
-                <div class="cursor-pointer hover:opacity-80 transition-opacity bg-white border border-gray-200 rounded-xl p-3 mb-3 flex items-center justify-center"
+                <div class="cursor-pointer hover:opacity-80 transition-opacity bg-white border border-gray-200 rounded-xl p-3 mb-2 flex flex-col items-center justify-center"
                     @click="$dispatch('open-barcode-modal')" title="Cliquez pour agrandir">
                     <div id="qrcode-{{ $bien->NumOrdre }}" style="display:flex;justify-content:center;"></div>
+                    @if($bien->code_formate)
+                    <p class="text-center text-[10px] font-mono text-gray-800 mt-2 tracking-wider">{{ $bien->code_formate }}</p>
+                    @endif
+                    @if($bien->designation)
+                    <p class="text-center text-[9px] text-gray-500 mt-0.5 leading-tight">{{ $bien->designation->designation }}</p>
+                    @endif
                 </div>
-                <p class="text-center text-[11px] text-gray-400 mb-3">QR Code · <span class="font-mono">{{ $bien->NumOrdre }}</span></p>
                 <button data-print-etiquette="{{ $bien->NumOrdre }}"
                     class="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-white bg-indigo-600 rounded-xl hover:bg-indigo-700 transition-colors">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
@@ -382,13 +387,14 @@
             <button @click="open = false" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
             </button>
-            <div class="flex items-center justify-center bg-white p-6 rounded-xl border border-gray-100">
+            <div class="flex flex-col items-center justify-center bg-white p-6 rounded-xl border border-gray-100">
                 <div id="qrcode-modal-{{ $bien->NumOrdre }}" style="display:flex;justify-content:center;"></div>
-            </div>
-            <div class="text-center mt-4 space-y-1">
-                <p class="text-sm font-mono font-bold text-gray-800">{{ $bien->NumOrdre }}</p>
-                @if($bien->code_formate) <p class="text-xs font-mono text-gray-500">{{ $bien->code_formate }}</p> @endif
-                @if($bien->designation) <p class="text-xs text-gray-600">{{ $bien->designation->designation }}</p> @endif
+                @if($bien->code_formate)
+                <p class="text-center text-xs font-mono font-bold text-gray-800 mt-3 tracking-wider">{{ $bien->code_formate }}</p>
+                @endif
+                @if($bien->designation)
+                <p class="text-center text-xs text-gray-500 mt-1">{{ $bien->designation->designation }}</p>
+                @endif
             </div>
         </div>
     </div>
