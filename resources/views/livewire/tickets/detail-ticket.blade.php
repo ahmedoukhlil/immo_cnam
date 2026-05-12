@@ -156,7 +156,18 @@
                     @if($ticket->bien)
                         <div>
                             <dt class="text-gray-500">Bien concerné</dt>
-                            <dd class="font-medium text-gray-800">N°{{ $ticket->bien->NumOrdre }} — {{ $ticket->bien->designation?->Designation ?? '—' }}</dd>
+                            <dd class="font-medium text-gray-800">
+                                <a href="{{ route('biens.show', $ticket->bien->NumOrdre) }}" wire:navigate
+                                   class="text-indigo-600 hover:underline">
+                                    N°{{ $ticket->bien->NumOrdre }}
+                                </a>
+                            </dd>
+                            @if($ticket->bien->designation)
+                            <dd class="text-gray-700 mt-0.5">{{ $ticket->bien->designation->designation }}</dd>
+                            @endif
+                            @if($ticket->bien->code_formate)
+                            <dd class="text-xs font-mono text-gray-500 mt-0.5">{{ $ticket->bien->code_formate }}</dd>
+                            @endif
                         </div>
                     @endif
                     <div>

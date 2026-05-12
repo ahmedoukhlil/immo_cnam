@@ -287,7 +287,7 @@ class User extends Authenticatable
 
     public function canAccessTickets(): bool
     {
-        return in_array($this->role, ['admin', 'technicien', 'occupant', 'agent']);
+        return $this->hasPermission('tickets.voir');
     }
 
     // Relation permissions personnalisées

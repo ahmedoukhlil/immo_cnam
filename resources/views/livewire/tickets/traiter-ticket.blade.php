@@ -51,6 +51,62 @@
         </div>
     </div>
 
+    {{-- Historique des interventions sur ce bien --}}
+    @if($ticket->bien_id && count($historiqueInterventions) > 0)
+    <div class="mb-8">
+        <div class="flex items-center gap-2 mb-3">
+            <div class="w-6 h-6 flex items-center justify-center bg-amber-100 rounded-lg">
+                <svg class="w-3.5 h-3.5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+            </div>
+            <h2 class="text-sm font-semibold text-amber-700">
+                Historique des interventions sur ce bien
+                <span class="ml-1 text-xs font-normal text-amber-500">({{ count($historiqueInterventions) }} intervention(s) précédente(s))</span>
+            </h2>
+        </div>
+
+        <div class="space-y-3">
+            @foreach($historiqueInterventions as $hist)
+            <div class="bg-white rounded-2xl border border-amber-100 shadow-sm overflow-hidden">
+                {{-- Header --}}
+                <div class="flex items-center justify-between px-5 py-3 bg-amber-50/60 border-b border-amber-100">
+                    <div class="flex items-center gap-3">
+                        <span class="text-xs font-semibold text-amber-800 bg-amber-100 px-2 py-0.5 rounded-full">
+                            {{ $hist['ticket']['reference'] ?? '—' }}
+                        </span>
+                        <span class="text-sm font-medium text-gray-700 truncate max-w-xs">
+                            {{ $hist['ticket']['titre'] ?? '—' }}
+                        </span>
+                    </div>
+                    <div class="flex items-center gap-3 text-xs text-gray-400 shrink-0">
+                        <span>{{ $hist['technicien']['users'] ?? '—' }}</span>
+                        <span>{{ \Carbon\Carbon::parse($hist['created_at'])->format('d/m/Y') }}</span>
+                    </div>
+                </div>
+                {{-- Corps --}}
+                <div class="px-5 py-4 grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                    <div>
+                        <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Problème identifié</p>
+                        <p class="text-gray-700 leading-relaxed line-clamp-4 whitespace-pre-wrap">{{ $hist['probleme_identifie'] }}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Solution appliquée</p>
+                        <p class="text-gray-700 leading-relaxed line-clamp-4 whitespace-pre-wrap">{{ $hist['solution_appliquee'] }}</p>
+                    </div>
+                    @if(!empty($hist['observations']))
+                    <div class="sm:col-span-2">
+                        <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Observations</p>
+                        <p class="text-gray-600 text-xs leading-relaxed line-clamp-2 whitespace-pre-wrap">{{ $hist['observations'] }}</p>
+                    </div>
+                    @endif
+                </div>
+            </div>
+            @endforeach
+        </div>
+    </div>
+    @endif
+
     {{-- Formulaire --}}
     <div class="max-w-2xl">
         <form wire:submit="save" class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">

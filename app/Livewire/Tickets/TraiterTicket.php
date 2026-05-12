@@ -21,10 +21,11 @@ class TraiterTicket extends Component
     public string $solutionAppliquee = '';
     public string $observations = '';
     public array $photos = [];
+    public $historiqueInterventions = [];
 
     public function mount(Ticket $ticket): void
     {
-        $this->ticket = $ticket->load(['emplacement', 'bien', 'createdBy']);
+        $this->ticket = $ticket->load(['emplacement', 'bien.designation', 'createdBy']);
 
         $user = Auth::user();
         if (!$user->isTechnicien() || $ticket->assigned_to !== $user->idUser) {
@@ -33,6 +34,19 @@ class TraiterTicket extends Component
 
         if (!in_array($ticket->statut, ['assigne', 'en_cours'])) {
             abort(403, 'Ce ticket ne peut plus être traité.');
+        }
+
+        // Charger l'historique des interventions sur le même bien (tickets précédents résolus)
+        if ($ticket->bien_id) {
+            $this->historiqueInterventions = TicketIntervention::with(['ticket', 'technicien'])
+                ->whereHas('ticket', fn($q) => $q
+                    ->where('bien_id', $ticket->bien_id)
+                    ->where('id', '!=', $ticket->id)
+                    ->whereIn('statut', ['resolu', 'ferme'])
+                )
+                ->latest()
+                ->get()
+                ->toArray();
         }
     }
 

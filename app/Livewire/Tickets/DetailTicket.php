@@ -19,7 +19,7 @@ class DetailTicket extends Component
 
     public function mount(Ticket $ticket): void
     {
-        $this->ticket = $ticket->load(['emplacement', 'bien', 'createdBy', 'assignedTo', 'assignedBy', 'intervention.technicien', 'intervention.piecesJointes']);
+        $this->ticket = $ticket->load(['emplacement', 'bien.designation', 'createdBy', 'assignedTo', 'assignedBy', 'intervention.technicien', 'intervention.piecesJointes']);
         $this->techniciens = User::where('role', 'technicien')->get();
         $this->technicienId = $ticket->assigned_to;
     }
