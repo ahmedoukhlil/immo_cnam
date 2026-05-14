@@ -257,7 +257,7 @@
                             </div>
                             @if($codeFormateSuggere)
                                 <button type="button"
-                                    wire:click="$set('code_formate', '{{ $codeFormateSuggere }}')"
+                                    wire:click="utiliserCodeSuggere"
                                     class="shrink-0 px-3 py-2 text-xs font-medium text-indigo-700 bg-indigo-50 border border-indigo-200 rounded-lg hover:bg-indigo-100 transition-colors">
                                     Utiliser le code suggéré
                                 </button>
@@ -277,10 +277,10 @@
                         <label for="DateAcquisition" class="block text-sm font-medium text-gray-700 mb-1">
                             Année d'acquisition
                         </label>
-                        <input 
+                        <input
                             type="number"
                             id="DateAcquisition"
-                            wire:model.defer="DateAcquisition"
+                            wire:model.live.debounce.600ms="DateAcquisition"
                             min="1900"
                             max="{{ now()->year + 1 }}"
                             placeholder="Ex: {{ now()->year }}"

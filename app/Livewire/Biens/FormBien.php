@@ -107,6 +107,13 @@ class FormBien extends Component
         $this->recalculerCodeSuggere();
     }
 
+    public function utiliserCodeSuggere(): void
+    {
+        if ($this->codeFormateSuggere) {
+            $this->code_formate = $this->codeFormateSuggere;
+        }
+    }
+
     private function recalculerCodeSuggere(): void
     {
         if (empty($this->idEmplacement) || empty($this->DateAcquisition)) {
@@ -162,9 +169,10 @@ class FormBien extends Component
                 $emplacement = Emplacement::find($bien->idEmplacement);
                 if ($emplacement) {
                     $this->idLocalisation = (string) ($emplacement->idLocalisation ?? '');
-                    $this->idAffectation = (string) ($emplacement->idAffectation ?? '');
+                    $this->idAffectation  = (string) ($emplacement->idAffectation  ?? '');
                 }
             }
+            $this->recalculerCodeSuggere();
         } else {
             $this->DateAcquisition = now()->year;
             $this->quantite = 1;
