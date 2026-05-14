@@ -44,6 +44,8 @@ class FormBien extends Component
     public $valeur_acquisition = '';
     public $date_mise_en_service = '';
     public $quantite = 1;
+    public $code_formate = '';
+    public $codeFormateSuggere = '';
 
     /**
      * Mise à jour automatique de la catégorie lorsque la désignation change
@@ -86,13 +88,53 @@ class FormBien extends Component
      */
     public function updatedIdAffectation($value)
     {
-        // Vérifier si l'emplacement actuel appartient toujours à la nouvelle affectation
         if (!empty($this->idEmplacement)) {
             $emplacement = Emplacement::find($this->idEmplacement);
             if (!$emplacement || $emplacement->idAffectation != $value) {
                 $this->idEmplacement = '';
             }
         }
+        $this->recalculerCodeSuggere();
+    }
+
+    public function updatedIdEmplacement($value)
+    {
+        $this->recalculerCodeSuggere();
+    }
+
+    public function updatedDateAcquisition($value)
+    {
+        $this->recalculerCodeSuggere();
+    }
+
+    private function recalculerCodeSuggere(): void
+    {
+        if (empty($this->idEmplacement) || empty($this->DateAcquisition)) {
+            $this->codeFormateSuggere = '';
+            return;
+        }
+
+        $emplacement = Emplacement::with(['localisation', 'affectation'])->find($this->idEmplacement);
+        if (!$emplacement) {
+            $this->codeFormateSuggere = '';
+            return;
+        }
+
+        $annee           = (int) $this->DateAcquisition;
+        $codeLocalisation = $emplacement->localisation->CodeLocalisation ?? '';
+        $codeAffectation  = $emplacement->affectation->CodeAffectation   ?? '';
+        $codeEmplacement  = $emplacement->CodeEmplacement                 ?? '';
+
+        // NumOrdre = prochain auto-increment (estimation)
+        $nextNum = (\App\Models\Gesimmo::max('NumOrdre') ?? 0) + 1;
+
+        $this->codeFormateSuggere = \App\Models\Gesimmo::genererCodeSuggere(
+            $nextNum,
+            $annee,
+            $codeLocalisation,
+            $codeAffectation,
+            $codeEmplacement
+        );
     }
 
     /**
@@ -114,6 +156,7 @@ class FormBien extends Component
             $this->DateAcquisition = $bien->DateAcquisition ?? '';
             $this->valeur_acquisition = $bien->valeur_acquisition ?? '';
             $this->date_mise_en_service = $bien->date_mise_en_service ? $bien->date_mise_en_service->format('Y-m-d') : '';
+            $this->code_formate = $bien->attributes['code_formate'] ?? '';
 
             if ($bien->idEmplacement) {
                 $emplacement = Emplacement::find($bien->idEmplacement);
@@ -405,6 +448,7 @@ class FormBien extends Component
             'DateAcquisition'     => 'nullable|integer|min:1900|max:' . (now()->year + 1),
             'valeur_acquisition'  => 'nullable|numeric|min:0',
             'date_mise_en_service'=> 'nullable|date',
+            'code_formate'        => 'nullable|string|max:100',
         ];
 
         if (!$this->isEdit) {
@@ -472,15 +516,16 @@ class FormBien extends Component
             if ($this->isEdit) {
                 // Mode édition : mettre à jour l'immobilisation existante
                 $this->bien->update([
-                    'idDesignation' => $validated['idDesignation'],
-                    'idCategorie' => $validated['idCategorie'],
-                    'idEtat' => $validated['idEtat'],
-                    'idEmplacement' => $validated['idEmplacement'],
-                    'idNatJur' => $validated['idNatJur'],
-                    'idSF' => $validated['idSF'],
-                    'DateAcquisition' => !empty($validated['DateAcquisition']) ? (int)$validated['DateAcquisition'] : null,
-                    'valeur_acquisition' => !empty($validated['valeur_acquisition']) ? $validated['valeur_acquisition'] : null,
-                    'date_mise_en_service' => !empty($validated['date_mise_en_service']) ? $validated['date_mise_en_service'] : null,
+                    'idDesignation'       => $validated['idDesignation'],
+                    'idCategorie'         => $validated['idCategorie'],
+                    'idEtat'              => $validated['idEtat'],
+                    'idEmplacement'       => $validated['idEmplacement'],
+                    'idNatJur'            => $validated['idNatJur'],
+                    'idSF'                => $validated['idSF'],
+                    'DateAcquisition'     => !empty($validated['DateAcquisition']) ? (int)$validated['DateAcquisition'] : null,
+                    'valeur_acquisition'  => !empty($validated['valeur_acquisition']) ? $validated['valeur_acquisition'] : null,
+                    'date_mise_en_service'=> !empty($validated['date_mise_en_service']) ? $validated['date_mise_en_service'] : null,
+                    'code_formate'        => $validated['code_formate'] ?? null,
                 ]);
 
                 $bien = $this->bien->fresh();
@@ -492,19 +537,24 @@ class FormBien extends Component
                 
                 // Données communes pour toutes les immobilisations
                 $donneesCommunes = [
-                    'idDesignation' => $validated['idDesignation'],
-                    'idCategorie' => $validated['idCategorie'],
-                    'idEtat' => $validated['idEtat'],
-                    'idEmplacement' => $validated['idEmplacement'],
-                    'idNatJur' => $validated['idNatJur'],
-                    'idSF' => $validated['idSF'],
-                    'DateAcquisition' => !empty($validated['DateAcquisition']) ? (int)$validated['DateAcquisition'] : null,
-                    'valeur_acquisition' => !empty($validated['valeur_acquisition']) ? $validated['valeur_acquisition'] : null,
-                    'date_mise_en_service' => !empty($validated['date_mise_en_service']) ? $validated['date_mise_en_service'] : null,
+                    'idDesignation'       => $validated['idDesignation'],
+                    'idCategorie'         => $validated['idCategorie'],
+                    'idEtat'              => $validated['idEtat'],
+                    'idEmplacement'       => $validated['idEmplacement'],
+                    'idNatJur'            => $validated['idNatJur'],
+                    'idSF'                => $validated['idSF'],
+                    'DateAcquisition'     => !empty($validated['DateAcquisition']) ? (int)$validated['DateAcquisition'] : null,
+                    'valeur_acquisition'  => !empty($validated['valeur_acquisition']) ? $validated['valeur_acquisition'] : null,
+                    'date_mise_en_service'=> !empty($validated['date_mise_en_service']) ? $validated['date_mise_en_service'] : null,
+                    'code_formate'        => $validated['code_formate'] ?? null,
                 ];
                 
                 // Créer les immobilisations
                 for ($i = 0; $i < $quantite; $i++) {
+                    // Pour plusieurs biens, on ne duplique pas le code saisi — laisser vide sauf le premier
+                    if ($i > 0) {
+                        $donneesCommunes['code_formate'] = null;
+                    }
                     $bien = Gesimmo::create($donneesCommunes);
                     
                     // Charger les relations nécessaires pour le code formaté et l'affichage

@@ -16,10 +16,11 @@ class Gesimmo extends Model
     public $timestamps = false;
 
     protected $fillable = [
-        'idDesignation', 'idCategorie', 'idEtat', 
-        'idEmplacement', 'idNatJur', 'idSF', 
+        'idDesignation', 'idCategorie', 'idEtat',
+        'idEmplacement', 'idNatJur', 'idSF',
         'DateAcquisition', 'Observations',
         'valeur_acquisition', 'date_mise_en_service',
+        'code_formate',
     ];
 
     protected $casts = [
@@ -111,46 +112,35 @@ class Gesimmo extends Model
      */
 
     /**
-     * Génère le code d'immobilisation au format: CodeNatJur/CodeDesignation/CodeCategorie/Année/CodeSourceFin/NumOrdre
-     * 
-     * Note: Le code formaté est utilisé pour générer le code-barres Code 128.
-     * Il doit être unique et refléter les caractéristiques de l'immobilisation.
-     * Les relations avec Emplacement, Localisation et Affectation sont utilisées
-     * pour l'affichage mais ne font pas partie du code formaté.
+     * Retourne le code formaté saisi manuellement (stocké en DB).
+     * Peut être vide si non encore renseigné.
      */
     public function getCodeFormateAttribute(): string
     {
-        // S'assurer que les relations sont chargées
-        if (!$this->relationLoaded('natureJuridique')) {
-            $this->load('natureJuridique');
-        }
-        if (!$this->relationLoaded('designation')) {
-            $this->load('designation');
-        }
-        if (!$this->relationLoaded('categorie')) {
-            $this->load('categorie');
-        }
-        if (!$this->relationLoaded('sourceFinancement')) {
-            $this->load('sourceFinancement');
-        }
-        
-        // DateAcquisition contient l'année (ex: 2019)
-        $annee = ($this->DateAcquisition && $this->DateAcquisition > 1970) ? $this->DateAcquisition : '';
-        
-        // Construire le code formaté avec les codes des relations
-        $codeNatJur = $this->natureJuridique->CodeNatJur ?? '';
-        $codeDesignation = $this->designation->CodeDesignation ?? '';
-        $codeCategorie = $this->categorie->CodeCategorie ?? '';
-        $codeSourceFin = $this->sourceFinancement->CodeSourceFin ?? '';
-        
+        return $this->attributes['code_formate'] ?? '';
+    }
+
+    /**
+     * Génère le code suggéré au format :
+     * CHAIB/MMOB/AA/CodeLocalisation/CodeAffectation/CodeEmplacement/NumOrdre
+     * (AA = 2 derniers chiffres de l'année d'acquisition)
+     */
+    public static function genererCodeSuggere(
+        int    $numOrdre,
+        int    $annee,
+        string $codeLocalisation,
+        string $codeAffectation,
+        string $codeEmplacement
+    ): string {
+        $aa = substr((string) $annee, -2);
+
         return sprintf(
-            '%s/%s/%s/%s/%s/%s',
-            $codeNatJur,
-            $codeDesignation,
-            $codeCategorie,
-            $annee,
-            $codeSourceFin,
-            $this->NumOrdre
+            'CHAIB/MMOB/%s/%s/%s/%s/%d',
+            $aa,
+            strtoupper($codeLocalisation ?: ''),
+            strtoupper($codeAffectation  ?: ''),
+            strtoupper($codeEmplacement  ?: ''),
+            $numOrdre
         );
     }
 

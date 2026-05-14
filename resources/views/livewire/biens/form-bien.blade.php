@@ -237,6 +237,41 @@
                     </div>
                     @endif
 
+                    {{-- Code d'immobilisation --}}
+                    <div class="md:col-span-2">
+                        <label for="code_formate" class="block text-sm font-medium text-gray-700 mb-1">
+                            Code d'immobilisation
+                        </label>
+                        <div class="flex gap-2 items-start">
+                            <div class="flex-1">
+                                <input
+                                    type="text"
+                                    id="code_formate"
+                                    wire:model.defer="code_formate"
+                                    maxlength="100"
+                                    placeholder="Ex : CHAIB/MMOB/26/LOC01/AFF01/EMP01/123"
+                                    class="block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm font-mono @error('code_formate') border-red-300 @enderror">
+                                @error('code_formate')
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
+                            </div>
+                            @if($codeFormateSuggere)
+                                <button type="button"
+                                    wire:click="$set('code_formate', '{{ $codeFormateSuggere }}')"
+                                    class="shrink-0 px-3 py-2 text-xs font-medium text-indigo-700 bg-indigo-50 border border-indigo-200 rounded-lg hover:bg-indigo-100 transition-colors">
+                                    Utiliser le code suggéré
+                                </button>
+                            @endif
+                        </div>
+                        @if($codeFormateSuggere)
+                            <p class="mt-1 text-xs text-gray-500">
+                                Code suggéré : <span class="font-mono text-indigo-600">{{ $codeFormateSuggere }}</span>
+                            </p>
+                        @else
+                            <p class="mt-1 text-xs text-gray-500">Sélectionnez un emplacement et une année pour voir le code suggéré.</p>
+                        @endif
+                    </div>
+
                     {{-- Année d'acquisition --}}
                     <div>
                         <label for="DateAcquisition" class="block text-sm font-medium text-gray-700 mb-1">
