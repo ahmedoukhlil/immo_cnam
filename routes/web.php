@@ -180,6 +180,7 @@ Route::middleware(['auth', 'session.timeout'])->group(function () {
         Route::get('/parametres/etats', \App\Livewire\Parametres\ListeEtats::class)->name('parametres.etats');
         Route::get('/parametres/natures-juridiques', \App\Livewire\Parametres\ListeNaturesJuridiques::class)->name('parametres.natures-juridiques');
         Route::get('/parametres/sources-financement', \App\Livewire\Parametres\ListeSourcesFinancement::class)->name('parametres.sources-financement');
+        Route::get('/parametres/categories', \App\Livewire\Parametres\ListeCategories::class)->name('parametres.categories');
 
         /*
         |------------------------------------------------------------------

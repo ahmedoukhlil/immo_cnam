@@ -288,6 +288,13 @@ class ListeBiens extends Component
         }
         if (!empty($this->filterDateAcquisition)) $query->where('DateAcquisition', (int)$this->filterDateAcquisition);
 
+        // Restriction parc : limiter aux catégories accessibles
+        $user = Auth::user();
+        $typesParcs = $user->typesParcsAccessibles();
+        if (!empty($typesParcs)) {
+            $query->whereHas('categorie', fn($q) => $q->whereIn('type_parc', $typesParcs));
+        }
+
         return $query->orderBy($this->sortField, $this->sortDirection);
     }
 

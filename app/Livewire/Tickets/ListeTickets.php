@@ -50,6 +50,12 @@ class ListeTickets extends Component
             });
         }
 
+        // Restriction parc : admin avec périmètre restreint ne voit que les tickets de son parc
+        $typesParcs = $user->typesParcsAccessibles();
+        if (!empty($typesParcs)) {
+            $query->whereHas('bien.categorie', fn($q) => $q->whereIn('type_parc', $typesParcs));
+        }
+
         $tickets = $query->orderByRaw("FIELD(statut, 'ouvert', 'assigne', 'en_cours', 'resolu', 'ferme')")
                          ->orderByRaw("FIELD(priorite, 'urgente', 'haute', 'normale', 'basse')")
                          ->orderBy('created_at', 'desc')

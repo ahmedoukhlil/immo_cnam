@@ -290,6 +290,26 @@ class User extends Authenticatable
         return $this->hasPermission('tickets.voir');
     }
 
+    // Retourne les type_parc accessibles selon les permissions ('informatique', 'materiel', ou les deux)
+    public function typesParcsAccessibles(): array
+    {
+        $info = $this->hasPermission('immobilisations.parc_informatique');
+        $mat  = $this->hasPermission('immobilisations.parc_materiel');
+
+        if ($info && $mat) return ['informatique', 'materiel'];
+        if ($info)         return ['informatique'];
+        if ($mat)          return ['materiel'];
+        // Pas de permission parc spécifique : accès complet (rôle classique)
+        return [];
+    }
+
+    // Indique si l'utilisateur a un périmètre restreint (une seule permission parc)
+    public function hasParcRestreint(): bool
+    {
+        $types = $this->typesParcsAccessibles();
+        return count($types) === 1;
+    }
+
     // Relation permissions personnalisées
     public function permissions(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {

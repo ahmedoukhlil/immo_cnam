@@ -103,6 +103,13 @@ class GestionTickets extends Component
             ->when($this->filtrePriorite,   fn($q) => $q->where('priorite',  $this->filtrePriorite))
             ->when($this->filtreTechnicien, fn($q) => $q->where('assigned_to', $this->filtreTechnicien));
 
+        // Restriction parc : admin avec périmètre restreint ne voit que les tickets de son parc
+        $user = Auth::user();
+        $typesParcs = $user->typesParcsAccessibles();
+        if (!empty($typesParcs)) {
+            $query->whereHas('bien.categorie', fn($q) => $q->whereIn('type_parc', $typesParcs));
+        }
+
         $tickets = $query
             ->orderByRaw("FIELD(statut, 'ouvert', 'assigne', 'en_cours', 'resolu', 'ferme')")
             ->orderByRaw("FIELD(priorite, 'urgente', 'haute', 'normale', 'basse')")

@@ -26,6 +26,7 @@ class Permission extends Model
                 'dashboard.activite_recente',
                 'dashboard.actions_rapides',
                 'immobilisations.voir', 'immobilisations.creer', 'immobilisations.modifier', 'immobilisations.supprimer',
+                'immobilisations.parc_informatique', 'immobilisations.parc_materiel',
                 'inventaires.voir', 'inventaires.creer', 'inventaires.executer',
                 'stock.voir', 'stock.gerer',
                 'tickets.voir', 'tickets.creer', 'tickets.assigner', 'tickets.traiter', 'tickets.fermer',
