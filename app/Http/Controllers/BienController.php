@@ -455,6 +455,82 @@ class BienController extends Controller
     }
 
     /**
+     * Affiche la page pour imprimer les étiquettes groupées par catégorie
+     * Réutilise la vue etiquettes-biens-tous-emplacements-client avec les catégories comme groupes.
+     */
+    public function imprimerEtiquettesParCategorie(Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'idCategorie' => 'required|exists:categorie,idCategorie',
+            ]);
+
+            $idCategorie = (int) $validated['idCategorie'];
+
+            $categorie = \App\Models\Categorie::find($idCategorie);
+
+            $biens = Gesimmo::where('idCategorie', $idCategorie)
+                ->with([
+                    'emplacement.localisation',
+                    'emplacement.affectation',
+                    'designation',
+                    'categorie',
+                ])
+                ->orderBy('NumOrdre')
+                ->get();
+
+            if ($biens->isEmpty()) {
+                return redirect()->back()->with('error', 'Aucun bien trouvé pour cette catégorie.');
+            }
+
+            // On réutilise la structure "emplacementsData" avec la catégorie comme groupe unique
+            $biensData = $biens->map(function ($bien) {
+                $qrSvg = QrCode::format('svg')
+                    ->size(220)
+                    ->margin(0)
+                    ->errorCorrection('M')
+                    ->generate((string) $bien->NumOrdre);
+
+                return [
+                    'NumOrdre'      => $bien->NumOrdre,
+                    'code_formate'  => $bien->code_formate ?? '',
+                    'designation'   => $bien->designation->designation ?? '',
+                    'barcode_value' => (string) $bien->NumOrdre,
+                    'qr_data_uri'   => 'data:image/svg+xml;base64,' . base64_encode($qrSvg),
+                ];
+            })->values()->all();
+
+            $qrSvg = QrCode::format('svg')
+                ->size(300)
+                ->margin(1)
+                ->errorCorrection('H')
+                ->generate("CAT-{$idCategorie}");
+
+            $qrDataUri = 'data:image/svg+xml;base64,' . base64_encode($qrSvg);
+
+            // Groupe unique = la catégorie
+            $emplacementsData = [[
+                'idEmplacement'  => "CAT-{$idCategorie}",
+                'Emplacement'    => $categorie->Categorie ?? "Catégorie #{$idCategorie}",
+                'CodeEmplacement'=> $categorie->CodeCategorie ?? '',
+                'localisation'   => null,
+                'affectation'    => null,
+                'biens'          => $biensData,
+            ]];
+
+            $qrDataUris = ["CAT-{$idCategorie}" => $qrDataUri];
+
+            return view('pdf.etiquettes-biens-tous-emplacements-client', [
+                'emplacementsData' => $emplacementsData,
+                'qrDataUris'       => $qrDataUris,
+                'filters'          => ['categorie' => $categorie->Categorie ?? ''],
+            ]);
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Erreur lors de l\'impression par catégorie : ' . $e->getMessage());
+        }
+    }
+
+    /**
      * Exporte les biens en format Excel (CSV)
      * 
      * Colonnes : Code, Désignation, Nature, Localisation, Service, Valeur, État, Date acquisition

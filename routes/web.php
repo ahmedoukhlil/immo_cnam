@@ -250,7 +250,10 @@ Route::middleware(['auth', 'session.timeout'])->group(function () {
             Route::post('/imprimer-etiquettes-tous-emplacements', [BienController::class, 'imprimerEtiquettesTousEmplacements'])->name('imprimer-etiquettes-tous-emplacements');
             // Impression groupée par intervalle de NumOrdre (33 étiquettes par page A4)
             Route::post('/imprimer-etiquettes-par-intervalle', [BienController::class, 'imprimerEtiquettesParIntervalle'])->name('imprimer-etiquettes-par-intervalle');
-            
+
+            // Impression groupée par catégorie
+            Route::post('/imprimer-etiquettes-par-categorie', [BienController::class, 'imprimerEtiquettesParCategorie'])->name('imprimer-etiquettes-par-categorie');
+
             // Export Excel des biens
             Route::get('/export/excel', [BienController::class, 'exportExcel'])->name('export-excel');
         });
