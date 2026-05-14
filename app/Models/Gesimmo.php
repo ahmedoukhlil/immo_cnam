@@ -20,7 +20,6 @@ class Gesimmo extends Model
         'idEmplacement', 'idNatJur', 'idSF',
         'DateAcquisition', 'Observations',
         'valeur_acquisition', 'date_mise_en_service',
-        'code_formate',
     ];
 
     protected $casts = [
@@ -112,35 +111,35 @@ class Gesimmo extends Model
      */
 
     /**
-     * Retourne le code formaté saisi manuellement (stocké en DB).
-     * Peut être vide si non encore renseigné.
+     * Génère le code d'immobilisation au format :
+     * CHAIB/MMOB/AA/CodeLocalisation/CodeAffectation/CodeEmplacement/NumOrdre
+     * AA = 2 derniers chiffres de l'année d'acquisition (ex: 2026 → 26)
      */
     public function getCodeFormateAttribute(): string
     {
-        return $this->attributes['code_formate'] ?? '';
-    }
+        if (!$this->relationLoaded('emplacement')) {
+            $this->load('emplacement.localisation', 'emplacement.affectation');
+        } elseif ($this->emplacement) {
+            if (!$this->emplacement->relationLoaded('localisation')) {
+                $this->emplacement->load('localisation');
+            }
+            if (!$this->emplacement->relationLoaded('affectation')) {
+                $this->emplacement->load('affectation');
+            }
+        }
 
-    /**
-     * Génère le code suggéré au format :
-     * CHAIB/MMOB/AA/CodeLocalisation/CodeAffectation/CodeEmplacement/NumOrdre
-     * (AA = 2 derniers chiffres de l'année d'acquisition)
-     */
-    public static function genererCodeSuggere(
-        int    $numOrdre,
-        int    $annee,
-        string $codeLocalisation,
-        string $codeAffectation,
-        string $codeEmplacement
-    ): string {
-        $aa = substr((string) $annee, -2);
+        $annee            = ($this->DateAcquisition > 1970) ? substr((string) $this->DateAcquisition, -2) : '';
+        $codeLocalisation = $this->emplacement->localisation->CodeLocalisation ?? '';
+        $codeAffectation  = $this->emplacement->affectation->CodeAffectation   ?? '';
+        $codeEmplacement  = $this->emplacement->CodeEmplacement                ?? '';
 
         return sprintf(
             'CHAIB/MMOB/%s/%s/%s/%s/%d',
-            $aa,
-            strtoupper($codeLocalisation ?: ''),
-            strtoupper($codeAffectation  ?: ''),
-            strtoupper($codeEmplacement  ?: ''),
-            $numOrdre
+            $annee,
+            strtoupper($codeLocalisation),
+            strtoupper($codeAffectation),
+            strtoupper($codeEmplacement),
+            $this->NumOrdre
         );
     }
 
