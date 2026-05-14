@@ -3,6 +3,7 @@
 namespace App\Livewire\Tickets;
 
 use App\Models\Ticket;
+use App\Livewire\Traits\ChecksPermission;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
@@ -12,7 +13,12 @@ use Livewire\WithPagination;
 
 class ListeTickets extends Component
 {
-    use WithPagination;
+    use WithPagination, ChecksPermission;
+
+    public function mount(): void
+    {
+        $this->requirePermission('tickets.voir');
+    }
 
     public string $search = '';
     public string $filtreStatut = '';

@@ -4,6 +4,7 @@ namespace App\Livewire\Tickets;
 
 use App\Models\Ticket;
 use App\Models\User;
+use App\Livewire\Traits\ChecksPermission;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
@@ -12,7 +13,12 @@ use Livewire\WithPagination;
 #[Layout('components.layouts.app')]
 class GestionTickets extends Component
 {
-    use WithPagination;
+    use WithPagination, ChecksPermission;
+
+    public function mount(): void
+    {
+        $this->requirePermission('tickets.assigner');
+    }
 
     public string $search       = '';
     public string $filtreStatut = '';

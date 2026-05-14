@@ -9,13 +9,14 @@ use App\Models\Affectation;
 use App\Models\Designation;
 use App\Models\Categorie;
 use App\Livewire\Traits\WithCachedOptions;
+use App\Livewire\Traits\ChecksPermission;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\WithPagination;
 
 class ListeBiens extends Component
 {
-    use WithPagination, WithCachedOptions;
+    use WithPagination, WithCachedOptions, ChecksPermission;
 
     /**
      * Propriétés publiques pour les filtres et la recherche
@@ -40,7 +41,7 @@ class ListeBiens extends Component
      */
     public function mount(): void
     {
-        // Réinitialiser la pagination si nécessaire
+        $this->requirePermission('immobilisations.voir');
         $this->resetPage();
     }
 

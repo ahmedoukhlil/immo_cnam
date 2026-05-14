@@ -3,12 +3,19 @@
 namespace App\Livewire\Parametres;
 
 use App\Models\Categorie;
+use App\Livewire\Traits\ChecksPermission;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 
 #[Layout('components.layouts.app')]
 class ListeCategories extends Component
 {
+    use ChecksPermission;
+
+    public function mount(): void
+    {
+        $this->requirePermission('parametres.gerer');
+    }
     public ?int $editId = null;
     public string $typeParc = '';
 

@@ -5,13 +5,14 @@ namespace App\Livewire\Inventaires;
 use App\Models\Inventaire;
 use App\Models\InventaireLocalisation;
 use App\Models\User;
+use App\Livewire\Traits\ChecksPermission;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\WithPagination;
 
 class ListeInventaires extends Component
 {
-    use WithPagination;
+    use WithPagination, ChecksPermission;
 
     /**
      * Propriétés publiques pour les filtres et le tri
@@ -31,7 +32,7 @@ class ListeInventaires extends Component
      */
     public function mount(): void
     {
-        // Réinitialiser la pagination si nécessaire
+        $this->requirePermission('inventaires.voir');
         $this->resetPage();
     }
 

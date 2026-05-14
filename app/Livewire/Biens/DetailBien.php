@@ -4,11 +4,13 @@ namespace App\Livewire\Biens;
 
 use App\Models\Gesimmo;
 use App\Services\AmortissementService;
+use App\Livewire\Traits\ChecksPermission;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 
 class DetailBien extends Component
 {
+    use ChecksPermission;
     /**
      * Instance de l'immobilisation
      */
@@ -28,6 +30,7 @@ class DetailBien extends Component
      */
     public function mount(Gesimmo $bien): void
     {
+        $this->requirePermission('immobilisations.voir');
         $this->bien = $bien->load([
             'designation.categorie',
             'categorie',

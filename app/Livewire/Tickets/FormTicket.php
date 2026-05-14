@@ -5,6 +5,7 @@ namespace App\Livewire\Tickets;
 use App\Models\Gesimmo;
 use App\Models\Emplacement;
 use App\Models\Ticket;
+use App\Livewire\Traits\ChecksPermission;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
@@ -13,6 +14,8 @@ use Livewire\Component;
 
 class FormTicket extends Component
 {
+    use ChecksPermission;
+
     public ?int $idEmplacement = null;
     public ?int $bien_id = null;
     public string $titre = '';
@@ -24,6 +27,7 @@ class FormTicket extends Component
 
     public function mount(): void
     {
+        $this->requirePermission('tickets.creer');
         $user = Auth::user();
 
         // Occupant : uniquement ses emplacements assignés

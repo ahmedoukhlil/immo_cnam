@@ -3,12 +3,19 @@
 namespace App\Livewire\Parametres;
 
 use App\Models\SourceFinancement;
+use App\Livewire\Traits\ChecksPermission;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 
 #[Layout('components.layouts.app')]
 class ListeSourcesFinancement extends Component
 {
+    use ChecksPermission;
+
+    public function mount(): void
+    {
+        $this->requirePermission('parametres.gerer');
+    }
     public string $libelle = '';
     public string $code = '';
     public ?int $editId = null;

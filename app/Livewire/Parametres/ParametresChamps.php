@@ -3,16 +3,19 @@
 namespace App\Livewire\Parametres;
 
 use App\Models\ParametreChamp;
+use App\Livewire\Traits\ChecksPermission;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 
 #[Layout('components.layouts.app')]
 class ParametresChamps extends Component
 {
+    use ChecksPermission;
     public array $champs = [];
 
     public function mount(): void
     {
+        $this->requirePermission('parametres.gerer');
         $this->charger();
     }
 

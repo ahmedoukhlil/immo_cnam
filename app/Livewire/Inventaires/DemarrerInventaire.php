@@ -6,11 +6,13 @@ use App\Models\Inventaire;
 use App\Models\InventaireLocalisation;
 use App\Models\LocalisationImmo;
 use App\Models\User;
+use App\Livewire\Traits\ChecksPermission;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 
 class DemarrerInventaire extends Component
 {
+    use ChecksPermission;
     /**
      * Propriétés publiques du formulaire
      */
@@ -32,6 +34,7 @@ class DemarrerInventaire extends Component
      */
     public function mount(): void
     {
+        $this->requirePermission('inventaires.creer');
         // Vérifier qu'aucun inventaire n'est déjà en cours ou en préparation
         $inventaireExistant = Inventaire::whereIn('statut', ['en_cours', 'en_preparation'])->first();
 

@@ -3,13 +3,14 @@
 namespace App\Livewire\Users;
 
 use App\Models\User;
+use App\Livewire\Traits\ChecksPermission;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Illuminate\Support\Facades\Hash;
 
 class ListeUsers extends Component
 {
-    use WithPagination;
+    use WithPagination, ChecksPermission;
 
     /**
      * Propriétés publiques pour les filtres et la recherche
@@ -26,6 +27,7 @@ class ListeUsers extends Component
      */
     public function mount(): void
     {
+        $this->requirePermission('utilisateurs.voir');
         $this->resetPage();
     }
 

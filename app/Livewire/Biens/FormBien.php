@@ -13,12 +13,13 @@ use App\Models\NatureJuridique;
 use App\Models\SourceFinancement;
 use App\Models\ParametreChamp;
 use App\Livewire\Traits\WithCachedOptions;
+use App\Livewire\Traits\ChecksPermission;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 
 class FormBien extends Component
 {
-    use WithCachedOptions;
+    use WithCachedOptions, ChecksPermission;
     /**
      * Instance de l'immobilisation (null si création)
      */
@@ -101,6 +102,9 @@ class FormBien extends Component
      */
     public function mount($bien = null): void
     {
+        $permission = $bien ? 'immobilisations.modifier' : 'immobilisations.creer';
+        $this->requirePermission($permission);
+
         if ($bien) {
             $this->bien = $bien;
             $this->bienId = $bien->NumOrdre;

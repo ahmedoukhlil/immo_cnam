@@ -166,6 +166,7 @@
                                 </button>
                                 
                                 <ul x-show="openMenu === 'immobilisations'" x-cloak x-transition class="mt-2 space-y-1 pl-4">
+                                    @if(auth()->user()->hasPermission('immobilisations.voir'))
                                     <li>
                                         <a href="{{ route('biens.index') }}" wire:navigate
                                            class="flex items-center px-4 py-2 text-sm text-gray-400 rounded-lg hover:bg-indigo-700 hover:text-white transition-colors"
@@ -174,6 +175,8 @@
                                             <span>Liste</span>
                                         </a>
                                     </li>
+                                    @endif
+                                    @if(auth()->user()->hasPermission('immobilisations.creer'))
                                     <li>
                                         <a href="{{ route('biens.create') }}" wire:navigate
                                            class="flex items-center px-4 py-2 text-sm text-gray-400 rounded-lg hover:bg-indigo-700 hover:text-white transition-colors"
@@ -182,6 +185,8 @@
                                             <span>Ajouter</span>
                                         </a>
                                     </li>
+                                    @endif
+                                    @if(auth()->user()->hasPermission('immobilisations.modifier'))
                                     <li>
                                         <a href="{{ route('biens.transfert') }}" wire:navigate
                                            class="flex items-center px-4 py-2 text-sm text-gray-400 rounded-lg hover:bg-indigo-700 hover:text-white transition-colors"
@@ -198,6 +203,8 @@
                                             <span>Historique Transferts</span>
                                         </a>
                                     </li>
+                                    @endif
+                                    @if(auth()->user()->hasPermission('immobilisations.voir'))
                                     <li>
                                         <a href="{{ route('biens.amortissements') }}" wire:navigate
                                            class="flex items-center px-4 py-2 text-sm text-gray-400 rounded-lg hover:bg-indigo-700 hover:text-white transition-colors"
@@ -206,6 +213,7 @@
                                             <span>Amortissements</span>
                                         </a>
                                     </li>
+                                    @endif
                                 </ul>
                             </li>
 
@@ -259,6 +267,7 @@
                                             <span>Désignations</span>
                                         </a>
                                     </li>
+                                    @if(auth()->user()->hasPermission('parametres.gerer'))
                                     <li>
                                         <a href="{{ route('parametres.etats') }}" wire:navigate
                                            class="flex items-center px-4 py-2 text-sm text-gray-400 rounded-lg hover:bg-indigo-700 hover:text-white transition-colors"
@@ -291,10 +300,12 @@
                                             <span>Catégories (Parc)</span>
                                         </a>
                                     </li>
+                                    @endif
                                 </ul>
                             </li>
 
                             <!-- Inventaires -->
+                            @if(auth()->user()->hasPermission('inventaires.voir'))
                             <li>
                                 <a href="{{ route('inventaires.index') }}" wire:navigate
                                    class="flex items-center px-4 py-3 text-gray-300 rounded-lg hover:bg-indigo-700 hover:text-white transition-colors"
@@ -305,6 +316,7 @@
                                     <span>Inventaires</span>
                                 </a>
                             </li>
+                            @endif
                         @endif
 
                         @if(auth()->check() && auth()->user()->canAccessTickets())
