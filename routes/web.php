@@ -171,16 +171,6 @@ Route::middleware(['auth', 'session.timeout'])->group(function () {
             Route::get('/{designation}/edit', \App\Livewire\Designations\FormDesignation::class)->name('edit');
         });
 
-        /*
-        |------------------------------------------------------------------
-        | Paramètres des champs du formulaire
-        |------------------------------------------------------------------
-        */
-        Route::get('/parametres/champs', \App\Livewire\Parametres\ParametresChamps::class)->name('parametres.champs');
-        Route::get('/parametres/etats', \App\Livewire\Parametres\ListeEtats::class)->name('parametres.etats');
-        Route::get('/parametres/natures-juridiques', \App\Livewire\Parametres\ListeNaturesJuridiques::class)->name('parametres.natures-juridiques');
-        Route::get('/parametres/sources-financement', \App\Livewire\Parametres\ListeSourcesFinancement::class)->name('parametres.sources-financement');
-        Route::get('/parametres/categories', \App\Livewire\Parametres\ListeCategories::class)->name('parametres.categories');
 
         /*
         |------------------------------------------------------------------
@@ -364,10 +354,14 @@ Route::middleware(['auth', 'session.timeout'])->group(function () {
         | Paramètres
         |------------------------------------------------------------------
         |
-        | Configuration générale de l'application
+        | Configuration générale de l'application (réservé aux admins)
         |
         */
-        // Route::get('/settings', \App\Livewire\Settings\ParametresGeneraux::class)->name('settings.index');
+        Route::get('/parametres/champs', \App\Livewire\Parametres\ParametresChamps::class)->name('parametres.champs');
+        Route::get('/parametres/etats', \App\Livewire\Parametres\ListeEtats::class)->name('parametres.etats');
+        Route::get('/parametres/natures-juridiques', \App\Livewire\Parametres\ListeNaturesJuridiques::class)->name('parametres.natures-juridiques');
+        Route::get('/parametres/sources-financement', \App\Livewire\Parametres\ListeSourcesFinancement::class)->name('parametres.sources-financement');
+        Route::get('/parametres/categories', \App\Livewire\Parametres\ListeCategories::class)->name('parametres.categories');
 
     });
 });
