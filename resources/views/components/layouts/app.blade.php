@@ -218,6 +218,7 @@
                             </li>
 
                             <!-- PARAMETRES - Accordéon -->
+                            @if(auth()->user()->hasPermission('parametres.voir'))
                             <li>
                                 <button @click="toggle('parametres')"
                                         class="w-full flex items-center justify-between px-4 py-3 text-gray-300 rounded-lg hover:bg-indigo-700 hover:text-white transition-colors"
@@ -235,6 +236,7 @@
                                 </button>
                                 
                                 <ul x-show="openMenu === 'parametres'" x-cloak x-transition class="mt-2 space-y-1 pl-4">
+                                    @if(auth()->user()->hasPermission('parametres.gerer'))
                                     <li>
                                         <a href="{{ route('localisations.index') }}" wire:navigate
                                            class="flex items-center px-4 py-2 text-sm text-gray-400 rounded-lg hover:bg-indigo-700 hover:text-white transition-colors"
@@ -267,6 +269,7 @@
                                             <span>Désignations</span>
                                         </a>
                                     </li>
+                                    @endif
                                     @if(auth()->user()->hasPermission('parametres.gerer'))
                                     <li>
                                         <a href="{{ route('parametres.etats') }}" wire:navigate
@@ -303,6 +306,7 @@
                                     @endif
                                 </ul>
                             </li>
+                            @endif
 
                             <!-- Inventaires -->
                             @if(auth()->user()->hasPermission('inventaires.voir'))
